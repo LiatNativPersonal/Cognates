@@ -9,14 +9,8 @@ import re
 
 NATIVE_INPUT_DIR = "C:/Users/TAL-LAPTOP/Desktop/NLP Lab/rawData/reddit.Native/"
 NON_NATIVE_INPUT_DIR = "C:/Users/TAL-LAPTOP/Desktop/NLP Lab/rawData/reddit.nonNative/"
-OUTPUT_FILE = "UserAmountOfContent.csv"
-
-def printStatistics(stat_dict):    
-    for country,users_dict in stat_dict.items():
-        with open(country+OUTPUT_FILE,"w+", encoding="utf-8") as output:            
-            for user,counts in users_dict.items():            
-                output.write("'" + user + "', " + str(counts[0]) + " ," + str(counts[1]) + "\n")           
-    return
+NATIVE_OUTPUT_FILE = "NativeCountryTop100UserAmountOfContent.csv"
+NON_NATIVE_OUTPUT_FILE = "NonNativeCountryTop100UserAmountOfContent.csv"
 
 def clean_line(line):
     strip_special_chars = re.compile("[^A-Za-z0-9 ',.]+")
@@ -33,34 +27,47 @@ def remove_subreeddit_and_user_name_from_line(line):
 
 #Construct a dictionary that maps each country to its users, 
 #and for each user holds the amount of tokens and sentences
-def collectStatistics():
-    countries_to_users_dict = {}
-    for file in (os.listdir(NATIVE_INPUT_DIR)):
-        
-        country_name= (file[len("reddit."):file.find(".txt")])
-        if country_name != "NewZealand" :
-            continue;
-        countries_to_users_dict[country_name] = {}
-        with open(NATIVE_INPUT_DIR + file, 'r', encoding='utf-8', errors='ignore') as country_file:
-            for line in country_file:
-                # user_name apears in the begining of every row inside []
-                user_name = get_user_name_from_line(line)     
-                # remove meta-data and extra characters
-                line = remove_subreeddit_and_user_name_from_line(line)                
-                line = clean_line(line)
-                
-                number_of_tokens = len(line.split())
-                if user_name in countries_to_users_dict[country_name].keys():
-                    countries_to_users_dict[country_name][user_name][0] += 1
-                    countries_to_users_dict[country_name][user_name][1] += number_of_tokens                   
-                else:
-                    count_user_text = [1, number_of_tokens]
-                    countries_to_users_dict[country_name][user_name] = count_user_text
-    return countries_to_users_dict
+def collectStatistics(input_dir, output_file):
+    print("Collecting statistics, results will be written to {}".format(output_file))    
+    with open(output_file,"a", encoding="utf-8") as output:   
+        output.write('Country, position_in_country, UserName, sentences#, tokens#\n')
+        for file in (os.listdir(input_dir)):            
+            country_name= (file[len("reddit."):file.find(".txt")])
+            print("Processing {}".format(country_name))
+#            if country_name != "NewZealand" and country_name!="Canada":
+#                continue;
+            user_to_number_of_tokens_dict = {}
+            user_to_number_of_sentences_dict = {}            
+            with open(input_dir + file, 'r', encoding='utf-8', errors='ignore') as country_file:             
+                for line in country_file:
+                    # user_name apears in the begining of every row inside []
+                    user_name = get_user_name_from_line(line)     
+                    # remove meta-data and extra characters
+                    line = remove_subreeddit_and_user_name_from_line(line)                
+                    line = clean_line(line)                    
+                    number_of_tokens = len(line.split())                   
+                    if user_name in user_to_number_of_tokens_dict.keys():
+                        user_to_number_of_sentences_dict[user_name] += 1
+                        user_to_number_of_tokens_dict[user_name] += number_of_tokens                   
+                    else:                        
+                        user_to_number_of_sentences_dict[user_name] = 1
+                        user_to_number_of_tokens_dict[user_name] = number_of_tokens
+                print("Done processing {}, writing 100 longest contet users".format(country_name))
+                counter = 0
+                for user in sorted(user_to_number_of_sentences_dict, key=user_to_number_of_sentences_dict.get, reverse=True):                        
+                    counter += 1
+                    output.write(country_name+ ", " + str(counter) + ", "+ user + ', {}, {}\n'.format(user_to_number_of_sentences_dict[user], user_to_number_of_tokens_dict[user]))
+                    if (counter >= 100):
+                        break
+    
 
 
 if __name__ == '__main__':
     print("Entering function __main__")
-    stat_dict = collectStatistics()
-    printStatistics(stat_dict)
+    print("++++++++++++ Native +++++++++++++")
+    open(NATIVE_OUTPUT_FILE, 'w+').close()
+    collectStatistics(NATIVE_INPUT_DIR, NATIVE_OUTPUT_FILE)
+    print("++++++++++++ Non-native +++++++++++++")
+    open(NON_NATIVE_OUTPUT_FILE, 'w+').close()
+    collectStatistics(NON_NATIVE_INPUT_DIR, NON_NATIVE_OUTPUT_FILE)
     print("Leaving function __main__")
