@@ -6,6 +6,7 @@ Created on Wed Aug 15 22:16:43 2018
 """
 import os
 import re
+from nltk.stem.porter import PorterStemmer
 
 NATIVE_INPUT_DIR = "C:/Users/TAL-LAPTOP/Desktop/NLP Lab/rawData/reddit.Native/"
 NON_NATIVE_INPUT_DIR = "C:/Users/TAL-LAPTOP/Desktop/NLP Lab/rawData/reddit.nonNative/"
@@ -88,12 +89,31 @@ def create_cognates_dict():
     with open(COGNATES_FOCUS_SET, "r", encoding="utf-8") as cognates_file:
         for line in cognates_file:
             for cognate in line.split():
-                cognates_dict[cognate] = 0                
-    print("cognates count {}".format(cognates_dict.keys()))
+                cognates_dict[cognate] = 0    
     return cognates_dict
+
+def print_dict(dict):
+    for key,value in dict.items():
+        print(str(key) + ": " + str(value))
 
 def count_cognates(massive_users_dir):
     cognates_count_dict = create_cognates_dict()
+    porter_stemmer = PorterStemmer()
+    for user_file in os.listdir(massive_users_dir):
+        with open(massive_users_dir+user_file, "r", encoding="utf-8") as user_text:
+            print("processing file {}".format(user_file))
+            #clear dictioanry
+            cognates_count_dict = cognates_count_dict.fromkeys(cognates_count_dict,0)
+            for line in user_text:
+                for word in line.split():
+                    basic_word = porter_stemmer.stem(word)
+                    if basic_word in cognates_count_dict.keys():
+                        cognates_count_dict[basic_word] += 1
+            print_dict(cognates_count_dict)
+            break
+            
+    return
+            
 
 
 
@@ -107,7 +127,7 @@ def Main():
 #    nonnative_users_to_tokens_num_dict =collect_statistics_(NON_NATIVE_INPUT_DIR, STAT_NON_NATIVE_OUTPUT_FILE,100)
     
     #create_large_content_user_dataset(1000000, STAT_NON_NATIVE_OUTPUT_FILE, NON_NATIVE_INPUT_DIR)
-    count_cognates("MassiveUsersDB")
+    count_cognates("MassiveUsersDB/")
     print("Leaving function __main__")
 
     
