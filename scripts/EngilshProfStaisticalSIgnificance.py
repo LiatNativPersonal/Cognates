@@ -7,12 +7,12 @@ Created on Tue Jan  1 13:44:51 2019
 from scipy import stats
 import csv
 
-NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Cognates/Results/1.5.2019_native_over_300_sent_analyzed.csv"
-#NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Cognates/Results/1.5.2019_germanic_over_300_sent_non_native_analyzed.csv"
+NATIVE_ENG_PROF_RESULTS_FILE = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_960_natives_analyzed.csv"
+#NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_478_romance_non_native_analyzed.csv"
+#NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_479_germanic_non_native_analyzed.csv"
+NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_957_non_native_analyzed.csv"
 
-NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Cognates/Results/1.5.2019_romance_over_300_sent_non_native_analyzed.csv"
-#NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Cognates/Results/1.5.2019_non_native_over_300_sent_analyzed.csv"
-OUPUT_FILE =  "C:/Users/liatn/Documents/Liat/Research/Cognates/Results/5.5.2019_stat_sig_Eng_prof_measurs_NvsRomanceNN.txt"
+OUPUT_FILE =  "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/27.5.2019_stat_sig_Eng_prof_measurs_NvsNN.txt"
 
 
 def initialize_measuers_dict(measure_names):    
