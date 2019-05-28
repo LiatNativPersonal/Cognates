@@ -32,7 +32,7 @@ ger_chunks = np.array_split(Germanic_by_TTR, 20)
 Ger_values = []
 for chunk in ger_chunks:
     Ger_values.append([np.mean(chunk["TTR"]),np.mean(chunk["Germanic Diff"]),"Blue"])
-rom_chunks = np.array_split(Romance_by_TTR,20)
+rom_chunks = np.array_split(Romance_by_TTR,20)  
 Rom_values = []
 for chunk in rom_chunks:
     Rom_values.append([np.mean(chunk["TTR"]),np.mean(chunk["Germanic Diff"]),"Red"])
