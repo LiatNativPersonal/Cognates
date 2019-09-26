@@ -8,6 +8,7 @@ Created on Tue May 28 07:59:37 2019
 GERMANIC_USER_DB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/germanic_users_db.csv"
 ROMANCE_USERE_DB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/romance_users_db.csv"
 NATIVE_USERE_DB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/native_users_db.csv"
+IMAGES_LIB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Images/"
 USEFUL_MEASURES = ["MLS","C/S","DC/C","T/S","CT/T"," TTR"   ]
 VALID_SYNSETS = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/valid_synsets.csv"
 GER_DIFF = "_ger_diff"
@@ -41,9 +42,15 @@ class DataBaseManager:
                 
                 germanic_norm_count_col_name = synset.rstrip() + "_g"
                 romance_norm_count_col_name = synset.rstrip() + "_r"
+                germanic_sum = 0
+                romance_sum = 0
                 data = self.native_db.loc[:,[germanic_norm_count_col_name, romance_norm_count_col_name]]
                 counts_no_zeros = []
                 for index, row in data.iterrows():
+                    ########## trying to figure out if romance words means higher English
+                    germanic_sum += row[germanic_norm_count_col_name]
+                    romance_sum += row[romance_norm_count_col_name]
+                    ##########################################################
                     counts_no_zeros.append(row[germanic_norm_count_col_name])
 #                    if row[germanic_norm_count_col_name] + row[romance_norm_count_col_name] > 0:
 #                        counts_no_zeros.append(row[germanic_norm_count_col_name])
@@ -80,7 +87,7 @@ class DataBaseManager:
         plot_df = pd.DataFrame(germanic_agg_values+ romance_agg_values, columns= [english_proficency_measure, synset_number+GER_DIFF, COLOR])
         colors = np.array(plot_df[COLOR])
         plot_df.plot.scatter(x=english_proficency_measure, y=synset_number+GER_DIFF, grid=True,  title="Synset" + synset_number + " -" + english_proficency_measure, c=colors)
-        plt.savefig("Images/" + synset_number + " -" + english_proficency_measure +".png")
+        plt.savefig(IMAGES_LIB + synset_number + " -DC-C"  +".png")
         
         
         
@@ -93,7 +100,9 @@ class DataBaseManager:
 
 def Main():
     db_mgr = DataBaseManager(GERMANIC_USER_DB, ROMANCE_USERE_DB, NATIVE_USERE_DB, VALID_SYNSETS)
-    db_mgr.generate_scatter_plot(" TTR", "539", 25)
+    #for synset in db_mgr.valid_synsets_to_threshold.keys():
+     #   db_mgr.generate_scatter_plot("DC/C", str(synset), 25)
 #    print(len(db_mgr.non_native_db))
+    print(db_mgr.germanic_db)
 if __name__ == '__main__':
     Main()
