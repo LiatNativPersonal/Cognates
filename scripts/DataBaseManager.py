@@ -21,6 +21,8 @@ ROM_COLOR = "Red"
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 class DataBaseManager:
 
@@ -90,7 +92,8 @@ class DataBaseManager:
         plt.savefig(IMAGES_LIB + synset_number + " -DC-C"  +".png")
         
         
-        
+    def draw_lollipop_plot(self, english_proficency_measure, position, row ):
+        print('hi')
     
 
 
@@ -100,9 +103,28 @@ class DataBaseManager:
 
 def Main():
     db_mgr = DataBaseManager(GERMANIC_USER_DB, ROMANCE_USERE_DB, NATIVE_USERE_DB, VALID_SYNSETS)
+    
     #for synset in db_mgr.valid_synsets_to_threshold.keys():
      #   db_mgr.generate_scatter_plot("DC/C", str(synset), 25)
 #    print(len(db_mgr.non_native_db))
-    print(db_mgr.germanic_db)
+#    print(db_mgr.germanic_db)
+    
+    
+    
+    data_for_analysis = (db_mgr.germanic_db.sort_values(by=[' TTR']).loc[:,['username', 'country', ' TTR']])
+   
+    for synset in db_mgr.valid_synsets_to_threshold.keys():         
+        sysnset_num = str(synset)        
+       
+        data_for_analysis[sysnset_num+GER_DIFF] = db_mgr.germanic_db[sysnset_num+GER_DIFF]
+    position = 1
+    for index, row in data_for_analysis.iterrows():
+     db_mgr.draw_lollipop_plot('TTR', position, row)
+     position += 1
+     
+
+#    (data_for_analysis).to_csv(r'test.csv', index=None, header="True")
+    
+
 if __name__ == '__main__':
     Main()
