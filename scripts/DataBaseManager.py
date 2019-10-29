@@ -21,7 +21,7 @@ ROM_COLOR = "Red"
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+#import seaborn as sns
 
 
 class DataBaseManager:
@@ -93,7 +93,23 @@ class DataBaseManager:
         
         
     def draw_lollipop_plot(self, english_proficency_measure, position, row ):
-        print('hi')
+        x = np.array(list(self.valid_synsets_to_threshold.keys()))
+        y = np.array(row)
+        
+#        print(x)
+        print(len(y))
+        lol = []
+        for value in y:
+            if value >=0 :
+                lol.append('orange')
+            else:
+                lol.append('skyblue')
+        lolli_color = np.array(lol)
+        plt.vlines(x=x, ymin=0, ymax=y, color=lolli_color, alpha=0.4)
+        plt.scatter(x, y, color=lolli_color,  s=1, alpha=1)
+        plt.savefig(IMAGES_LIB + english_proficency_measure + "--"+str(position) +"--" +".png")
+        plt.cla()
+        
     
 
 
@@ -116,11 +132,14 @@ def Main():
     for synset in db_mgr.valid_synsets_to_threshold.keys():         
         sysnset_num = str(synset)        
        
-        data_for_analysis[sysnset_num+GER_DIFF] = db_mgr.germanic_db[sysnset_num+GER_DIFF]
+        data_for_analysis[sysnset_num+GER_DIFF] = db_mgr.romance_db[sysnset_num+GER_DIFF]
     position = 1
     for index, row in data_for_analysis.iterrows():
-     db_mgr.draw_lollipop_plot('TTR', position, row)
-     position += 1
+        db_mgr.draw_lollipop_plot('TTR', position, pd.DataFrame(row[3::]))
+        
+#        print(current_row)
+        position += 1
+        
      
 
 #    (data_for_analysis).to_csv(r'test.csv', index=None, header="True")
