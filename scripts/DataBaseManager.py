@@ -9,13 +9,16 @@ GERMANIC_USER_DB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results
 ROMANCE_USERE_DB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/romance_users_db.csv"
 NATIVE_USERE_DB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/native_users_db.csv"
 IMAGES_LIB = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Images/"
-USEFUL_MEASURES = ["MLS","C/S","DC/C","T/S","CT/T"," TTR"   ]
+ROMANCE_IMAGES_LIB = IMAGES_LIB + "RomanceUsers/"
+GERMANIC_IMAGES_LIB = IMAGES_LIB + "GermanicUsers/"
+USEFUL_MEASURES = {"MLS":"MLS","C/S":"C-S","DC/C":"DC-C","T/S":"T-S","CT/T":"CT-T"," TTR":"TTR"}
 VALID_SYNSETS = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/valid_synsets.csv"
 GER_DIFF = "_ger_diff"
 ORIGIN = "origin"
 COLOR = "color"
 GER_COLOR = "Blue"
 ROM_COLOR = "Red"
+
 
 
 import numpy as np
@@ -92,22 +95,27 @@ class DataBaseManager:
         plt.savefig(IMAGES_LIB + synset_number + " -DC-C"  +".png")
         
         
-    def draw_lollipop_plot(self, english_proficency_measure, position, row ):
+    def draw_lollipop_plot(self, english_proficency_measure, position, row, lib, username ):
         x = np.array(list(self.valid_synsets_to_threshold.keys()))
-        y = np.array(row)
+        y = -np.sort(-np.array(row),axis=0)
         
 #        print(x)
-        print(len(y))
+#        print(len(y))
         lol = []
         for value in y:
-            if value >=0 :
-                lol.append('orange')
-            else:
-                lol.append('skyblue')
+            try:
+                if value >=0 :
+                    lol.append('orange')
+                else:
+                    lol.append('skyblue')
+            except:
+                continue
         lolli_color = np.array(lol)
         plt.vlines(x=x, ymin=0, ymax=y, color=lolli_color, alpha=0.4)
+        plt.ylim(-1, 1)
         plt.scatter(x, y, color=lolli_color,  s=1, alpha=1)
-        plt.savefig(IMAGES_LIB + english_proficency_measure + "--"+str(position) +"--" +".png")
+        
+        plt.savefig(lib + english_proficency_measure + "--"+str(position)+ "_" +username +"--" +".png")
         plt.cla()
         
     
@@ -125,21 +133,49 @@ def Main():
 #    print(len(db_mgr.non_native_db))
 #    print(db_mgr.germanic_db)
     
-    
-    
-    data_for_analysis = (db_mgr.germanic_db.sort_values(by=[' TTR']).loc[:,['username', 'country', ' TTR']])
-   
-    for synset in db_mgr.valid_synsets_to_threshold.keys():         
-        sysnset_num = str(synset)        
-       
-        data_for_analysis[sysnset_num+GER_DIFF] = db_mgr.romance_db[sysnset_num+GER_DIFF]
-    position = 1
-    for index, row in data_for_analysis.iterrows():
-        db_mgr.draw_lollipop_plot('TTR', position, pd.DataFrame(row[3::]))
+    #LOLLIPOP GRAPH
+#    for measure, print_measure in USEFUL_MEASURES.items():
+#        print("Processing {}".format(print_measure))
+#        data_for_analysis = (db_mgr.romance_db.sort_values(by=[measure]).loc[:,['username', 'country', measure]])
+#        for synset in db_mgr.valid_synsets_to_threshold.keys():         
+#            sysnset_num = str(synset)       
+#            data_for_analysis[sysnset_num+GER_DIFF] = db_mgr.romance_db[sysnset_num+GER_DIFF]
+#        position = 1
+#        for index, row in data_for_analysis.iterrows():
+#            db_mgr.draw_lollipop_plot(print_measure, position, pd.DataFrame(row[3::]),ROMANCE_IMAGES_LIB, row['username'])
+#            position += 1
         
-#        print(current_row)
-        position += 1
         
+    user_vector = db_mgr.romance_db.loc[:,["username","MLS","C/S","DC/C","T/S","CT/T"," TTR"]]
+    positive_distance = []
+    negative_distance = []
+    all_distance = []
+    germanic_romance_ratio = []
+    for index,row in db_mgr.romance_db.iterrows():
+        pos_germanic_diff_sum = 0
+        neg_germanic_diff_sum = 0
+        all_germanic_diff_sum = 0
+        for synset in db_mgr.valid_synsets_to_threshold.keys():
+            col_name = str(synset) + GER_DIFF
+            val = row[col_name]
+            if val >= 0:
+                pos_germanic_diff_sum += val
+            else:
+                neg_germanic_diff_sum += abs(val)
+            all_germanic_diff_sum += abs(val)
+        positive_distance.append(pos_germanic_diff_sum)
+        negative_distance.append(neg_germanic_diff_sum)
+        all_distance.append(all_germanic_diff_sum)
+        germanic_romance_ratio.append(pos_germanic_diff_sum/neg_germanic_diff_sum)
+    user_vector['POS_DIST_SUM'] = positive_distance
+    user_vector['NEG_DIST_SUM'] = negative_distance
+    user_vector['JOINED_DIST_SUM'] = all_distance
+    user_vector['GERMANIC_ROMANCE_RATIO'] = germanic_romance_ratio
+    for measure, print_measure in USEFUL_MEASURES.items():
+        print("Processing {}".format(print_measure))     
+        user_vector.plot.scatter(x=measure , y="GERMANIC_ROMANCE_RATIO", grid=True )
+        plt.savefig(IMAGES_LIB + print_measure + "_Romance_users_overuse_ratio"+".png")
+#    print(user_vector.head())
      
 
 #    (data_for_analysis).to_csv(r'test.csv', index=None, header="True")
