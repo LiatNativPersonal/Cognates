@@ -19,6 +19,7 @@ class RedditCognatesCounter:
                 syn_set_count += 1
                 cog_syn_set_list=[]
                 for cognate in line.split():
+                    cognate = cognate.strip()
                     cog_syn_set_list.append(cognate)
                     if cognate not in self.cog_to_syn_set.keys():
                         self.cog_to_syn_set[cognate] = []                        
