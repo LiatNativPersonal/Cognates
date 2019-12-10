@@ -10,7 +10,7 @@ GERMANIC_TRANSCRIPT_LIB = "C:/Users/liatn/Documents/Liat/Research/TOEFL_MINI/GER
 SPANISH_ESSEY_LIB = "C:/Users/liatn/Documents/Liat/Research/TOEFL_MINI/SPA/essays/"
 SPANISH_TRANSCRIPT_LIB = "C:/Users/liatn/Documents/Liat/Research/TOEFL_MINI/SPA/speech_transcriptions/"
 #ALT_COG_LIST = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Extended Alternative synset list.txt"
-ALT_COG_LIST = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/xxx"
+ALT_COG_LIST = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/synset_list"
 GERMANIC_COUNT_FILE =  "Speech_Extended_ALT_TOEFL_Germanic_cognate_count.csv"
 ROMANCE_COUNT_FILE =  "Speech_Extended_ALT_TOEFL_ROMANCE_cognate_count.csv"
 
