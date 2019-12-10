@@ -10,7 +10,7 @@ from nltk.stem import WordNetLemmatizer
 
 class RedditCognatesCounter:
     
-    
+
     def read_cognages_list(self, cognates_list_file):
         cog_list = {}
         with open(cognates_list_file, "r", encoding="utf-8") as cognates_file:
@@ -41,7 +41,6 @@ class RedditCognatesCounter:
             cog_count_dict[key] = syn_set_dict
             for cognate in synset:
                 syn_set_dict[cognate] = 0
-            
         return cog_count_dict
     
     def get_total_cognate_count_for_user(self, user, user_text):
@@ -58,7 +57,7 @@ class RedditCognatesCounter:
             self.users_cognate_counts_dict[user] = self.init_user_cognate_count_dict()
         lemmatizer = WordNetLemmatizer()        
         for token in tok_line:
-            basic_token = lemmatizer.lemmatize(token)   
+            basic_token = lemmatizer.lemmatize(token) 
             if token in self.cog_to_syn_set.keys():
                 for synset in self.cog_to_syn_set[token]:                                             
                      self.users_cognate_counts_dict[user][synset][token] += 1
@@ -68,13 +67,13 @@ class RedditCognatesCounter:
             else:
                 continue
             user.totalCognateCount += 1
-            return
+            
         
     def count_cognates_for_user(self, user):   
         with open(user.text_file, "r", encoding="utf-8") as input_file:   
-            for line in input_file:
-                tok_line = nltk.word_tokenize(line)
-                self.count_cognate_for_user_line(user, tok_line)
+            for line in input_file:               
+                line = nltk.word_tokenize(line)
+                self.count_cognate_for_user_line(user, line)
 #                tok_line = nltk.word_tokenize(line)
 #                for token in tok_line:
 #                    basic_token = lemmatizer.lemmatize(token)   
@@ -87,6 +86,7 @@ class RedditCognatesCounter:
 #            self.users_cognate_counts_dict[user] =  cognate_count_dict       
 #            print("betray_count = " + str(betray_count))
 #            print("basic_betray_count = " + str(basic_betray_count))
+
     def write_cognates_vector_to_file(self, output_file_path, min_amount_of_tokens, min_amount_of_cognates ):
         with open(output_file_path, "w", encoding="utf-8") as output:
             with open("norm_" + output_file_path, "w", encoding="utf-8") as norm_output:
