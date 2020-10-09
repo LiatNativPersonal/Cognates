@@ -25,12 +25,15 @@ class RedditCognatesCounter:
                         self.cog_to_syn_set[cognate] = []                        
                     self.cog_to_syn_set[cognate].append(syn_set_count)
                 cog_list[syn_set_count] = cog_syn_set_list
+            self.total_syn_set_count = syn_set_count
         return cog_list
                 
     def __init__(self, cognates_list_file):
+        self.total_syn_set_count = 0
         self.users_cognate_counts_dict = {}
         self.cog_to_syn_set = {}        
         self.cognates_list = self.read_cognages_list(cognates_list_file)
+        
 
     # this is a nested dictionary of dictionaris maps a user to an additional dictionary that maps 
     # synset to a dictionary that maps cognate to its number of occurences
@@ -59,14 +62,19 @@ class RedditCognatesCounter:
         for token in tok_line:
             basic_token = lemmatizer.lemmatize(token) 
             if token in self.cog_to_syn_set.keys():
-                for synset in self.cog_to_syn_set[token]:                                             
+                for synset in self.cog_to_syn_set[token]:      
+                     if self.users_cognate_counts_dict[user][synset][token] == 0:
+                         user.totalSynsetUsed += 1
                      self.users_cognate_counts_dict[user][synset][token] += 1
             elif basic_token in self.cog_to_syn_set.keys():
                 for synset in self.cog_to_syn_set[basic_token]: 
+                    if self.users_cognate_counts_dict[user][synset][basic_token] == 0:
+                         user.totalSynsetUsed += 1
                     self.users_cognate_counts_dict[user][synset][basic_token] += 1
             else:
                 continue
             user.totalCognateCount += 1
+            
             
         
     def count_cognates_for_user(self, user):   

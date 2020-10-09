@@ -6,8 +6,8 @@ Created on Sun May 19 15:09:56 2019
 """
 import csv
 
-INPUT_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/1.5.2019_native_over_300_sent_analyzed.csv"
-OUTPUT_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/down_sample_19.5.2019_natives_over_300_sent_non_native_analyzed.csv"
+INPUT_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/scripts/native_extended_list_over_500_cog_200_synsets.csv"
+OUTPUT_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/scripts/down_sampled_native_extended_list_over_500_cog_200_synsets.csv"
 with open(INPUT_FILE, 'r', encoding='utf-8', errors='ignore') as input_file:
     with open(OUTPUT_FILE, 'w+', encoding='utf-8') as down_sample:
      reader = csv.reader(input_file, delimiter=',')
@@ -17,8 +17,16 @@ with open(INPUT_FILE, 'r', encoding='utf-8', errors='ignore') as input_file:
      down_sample.write("\n")
      i = 1
      lines = 0
+     cognate_number_to_number_of_users = {}
      for line in reader:
-         if i % 2 == 0 and lines < 960:
+         cognate_num = line[2]
+         if cognate_num not in cognate_number_to_number_of_users.keys():
+             cognate_number_to_number_of_users[cognate_num] = 0
+         cognate_number_to_number_of_users[cognate_num] +=1
+         if lines%4 == 0:
+             lines +=1
+             continue
+         if cognate_number_to_number_of_users[cognate_num] <= 2 :
              for attr in line:
                  down_sample.write("{},".format(attr))
              down_sample.write("\n")

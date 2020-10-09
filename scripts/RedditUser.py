@@ -32,6 +32,7 @@ class RedditUser:
         self.avg_age_of_aquisition = 0.0
         self.sample_size = 0
         self.totalCognateCount = 0
+        self.totalSynsetUsed = 0
 
     
     def set_amount_of_text(self, p_num_of_tokens, p_num_of_sentences):

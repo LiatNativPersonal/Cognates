@@ -1,0 +1,50 @@
+\begin{thebibliography}{6}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Goldin et~al.(2018)Goldin, Rabinovich, and Wintner]{goldin2018native}
+Gili Goldin, Ella Rabinovich, and Shuly Wintner.
+\newblock Native language identification with user generated content.
+\newblock In \emph{Proceedings of the 2018 Conference on Empirical Methods in
+  Natural Language Processing}, pages 3591--3601, 2018.
+
+\bibitem[Koppel and Ordan(2011)]{koppel2011translationese}
+Moshe Koppel and Noam Ordan.
+\newblock Translationese and its dialects.
+\newblock In \emph{Proceedings of the 49th Annual Meeting of the Association
+  for Computational Linguistics: Human Language Technologies}, pages
+  1318--1326, 2011.
+
+\bibitem[Mosteller and Wallace(1963)]{mosteller1963inference}
+Frederick Mosteller and David~L Wallace.
+\newblock Inference in an authorship problem: A comparative study of
+  discrimination methods applied to the authorship of the disputed federalist
+  papers.
+\newblock \emph{Journal of the American Statistical Association}, 58\penalty0
+  (302):\penalty0 275--309, 1963.
+
+\bibitem[Pennebaker et~al.(2001)Pennebaker, Francis, and
+  Booth]{pennebaker2001linguistic}
+James~W Pennebaker, Martha~E Francis, and Roger~J Booth.
+\newblock Linguistic inquiry and word count: Liwc 2001.
+\newblock \emph{Mahway: Lawrence Erlbaum Associates}, 71\penalty0
+  (2001):\penalty0 2001, 2001.
+
+\bibitem[Rabinovich et~al.(2018)Rabinovich, Tsvetkov, and
+  Wintner]{ella-cognates}
+Ella Rabinovich, Yulia Tsvetkov, and Shuly Wintner.
+\newblock Native language cognate effects on second language lexical choice.
+\newblock \emph{Transactions of the Association for Computational Linguistics},
+  6:\penalty0 329--342, 2018.
+
+\bibitem[Tetreault et~al.(2013)Tetreault, Blanchard, and
+  Cahill]{tetreault2013report}
+Joel Tetreault, Daniel Blanchard, and Aoife Cahill.
+\newblock A report on the first native language identification shared task.
+\newblock In \emph{Proceedings of the eighth workshop on innovative use of NLP
+  for building educational applications}, pages 48--57, 2013.
+
+\end{thebibliography}

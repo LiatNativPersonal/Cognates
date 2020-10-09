@@ -6,7 +6,7 @@ Created on Mon Feb 18 14:17:10 2019
 """
 import csv
 
-COGNATE_TO_LANGUAGE_FAMILY = "c:/Users/TAL-LAPTOP/Documents/Liat/Research/Cognates/cognates_info/cognates_origin.csv"
+COGNATE_TO_LANGUAGE_FAMILY = "c:/Users/TAL-LAPTOP/Documents/Liat/Research/Repo/Cognates/cognates_origin.csv"
 GERMANIC_ORIGIN = ["Iceland","Sweden","Germany","Austria","Netherlands","Norway","Finland","Denmark"]
 ROMANCE_ORIGIN = ["Romania","Portugal","Spain","Italy","France","Mexico","Argentina","Brazil","Venezuela","Sardinia","Andorra"]
 class CognateSynsetValidator():

@@ -7,12 +7,13 @@ Created on Tue Jan  1 13:44:51 2019
 from scipy import stats
 import csv
 
-NATIVE_ENG_PROF_RESULTS_FILE = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_960_natives_analyzed.csv"
+NATIVE_ENG_PROF_RESULTS_FILE = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/2020/native_users_lex_prof_measurs.csv"
 #NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_478_romance_non_native_analyzed.csv"
 #NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_479_germanic_non_native_analyzed.csv"
-NON_NATIVE_ENG_PROF_RESULTS_FILE = "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/Valid/19.5.2019_957_non_native_analyzed.csv"
+GERMANIC_ENG_PROF_RESULTS_FILE = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/2020/germanic_users_lex_prof_measurs.csv"
+ROMANCE_ENG_PROF_RESULTS_FILE = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/2020/romance_users_lex_prof_measurs.csv"
 
-OUPUT_FILE =  "C:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Results/27.5.2019_stat_sig_Eng_prof_measurs_NvsNN.txt"
+OUPUT_FILE =  "RomanceVsGermanicLexEngProfMeasureStatSig.csv"
 
 
 def initialize_measuers_dict(measure_names):    
@@ -26,23 +27,23 @@ def initialize_measuers_dict(measure_names):
 def parse_files():
     native_measure_dict = {}
     non_native_measure_dict = {} 
-    with open(NATIVE_ENG_PROF_RESULTS_FILE, 'r') as native_eng_prof:
-        with open(NON_NATIVE_ENG_PROF_RESULTS_FILE, 'r') as non_native_eng_prof:
+    with open(GERMANIC_ENG_PROF_RESULTS_FILE, 'r') as native_eng_prof:
+        with open(ROMANCE_ENG_PROF_RESULTS_FILE, 'r') as non_native_eng_prof:
             native_reader = csv.reader(native_eng_prof, delimiter=',')            
             measure_names = next(native_reader)             
-#            return
+            print(measure_names)
             [native_measure_dict,non_native_measure_dict] = initialize_measuers_dict(measure_names)
             
             for native_eng_prof_valus in native_reader:
                 for i in range(len(measure_names)):
-                    if i < 3 :
+                    if i < 1 :
                         continue
                     native_measure_dict[measure_names[i]].append(float(native_eng_prof_valus[i]))
             non_native_reader = csv.reader(non_native_eng_prof, delimiter=',')
             next(non_native_reader,None)
             for non_native_eng_prof_valus in non_native_reader:
                 for i in range(len(measure_names)):
-                    if i < 3 or i > 4077:
+                    if i < 1 or i > 4077:
                         continue
 #                    print(i)
                     non_native_measure_dict[measure_names[i]].append(float(non_native_eng_prof_valus[i]))
