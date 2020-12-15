@@ -815,8 +815,8 @@ synset,word,Source
 314,noisy,R
 315,mistake,G
 315,error,R
-315,old,G
-315,ancient,R
+316,old,G
+316,ancient,R
 317,queer,G
 317,weird,G
 317,bizarre,R
@@ -854,7 +854,7 @@ synset,word,Source
 331,demolish,R
 332,wrong,G
 332,untrue,G
-332,false,R
+332,FALSE,R
 332,incorrect,R
 333,find,G
 333,discover,R
@@ -877,8 +877,8 @@ synset,word,Source
 341,garbage,G
 341,trash,G
 341,rubbish,R
-341,gather,G
-341,collect,R
+342,gather,G
+342,collect,R
 343,hat,G
 343,cap,R
 344,own,G
@@ -1091,8 +1091,8 @@ synset,word,Source
 435,coast,R
 436,outsider,G
 436,alien,R
-436,squeeze,G
-436,compress,R
+437,squeeze,G
+437,compress,R
 438,plot,G
 438,conspire,R
 438,scheme,R
