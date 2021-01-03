@@ -8,3 +8,9 @@ non-native_cognates_count_per_user_T.xlsx
 non-native_cognates_count_per_user_T.csv
 non-native_cognates_count_per_user_man.xlsx
 *.png
+RedditData/
+ETS_Corpus_of_Non-Native_Written_English/
+LOCNESS/
+TOEFL2013/
+scripts/__pycache__/
+main-master-Data-LOCNESS.zip
