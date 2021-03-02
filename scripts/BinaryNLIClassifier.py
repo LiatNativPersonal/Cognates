@@ -9,6 +9,7 @@ Created on Thu Jul 23 11:10:22 2020
 from sklearn.model_selection import cross_val_score, GridSearchCV, train_test_split, cross_validate, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.pipeline import FeatureUnion
 from sklearn.utils import class_weight
 import pandas as pd
 from nltk.stem import WordNetLemmatizer 
@@ -20,8 +21,9 @@ from imblearn.over_sampling import SMOTE
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
 from RedditUser import RedditUser
 from RedditCognatesCounter import RedditCognatesCounter
-
-# from sklearn import svm
+from scipy.sparse import coo_matrix, hstack
+import scipy.sparse as sp
+from sklearn import svm
 import numpy as np
 from random import sample, shuffle
 from scipy.sparse import vstack
@@ -34,12 +36,14 @@ REDDIT_GERMANIC_DATASET = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/
 REDDIT_ROMANCE_DATASET = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/NoBound/"
 REDDIT_NATIVE_DATASET = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/NoBound/"
 REDDIT_GERMANIC_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Germanic/shuffeldChunksOver2000/"
-REDDIT_ROMANCE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/shuffeldChunksOver2000/"
-REDDIT_NATIVE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/shuffeldChunksOver2000/"
-# REDDIT_ROMANCE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/toy/"
-# REDDIT_NATIVE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/toy/"
+REDDIT_ROMANCE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/complete_users_toy/"
+REDDIT_NATIVE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/complete_users_toy/"
+REDDIT_ROMANCE_POS_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/complete_users_POS_TagToy/"
+REDDIT_NATIVE_POS_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/complete_users_POS_TagToy/"
 FUNCTION_WORDS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/function-words.csv"
-  
+POS_TRIGRAMS_FILE = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/scripts/trigrams_toy_count.csv"
+TOP_FREQUENT_POS_TRIGRAMS = 300
+
 TOEFL_INDEX = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/ETS_Corpus_of_Non-Native_Written_English/data/text/index.csv"
 TOEFL_PATH = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/ETS_Corpus_of_Non-Native_Written_English/data/text/"
 TOEFL_ESSEYS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/ETS_Corpus_of_Non-Native_Written_English/data/text/responses/tokenized/"
@@ -50,7 +54,7 @@ TOEFL_SHUFFELED_CHUNKS_PATH = TOEFL_PATH + "shuff_grade_aggr/"
 TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH = TOEFL_SHUFFELED_CHUNKS_PATH + "/balanced/"
 LOCNESS_SHUFFELED_CHUNKS_PATH = "c:/Users/liatn/Documents/Liat/Research//Repo/Cognates/LOCNESS/shuff/"
 CHUNK_SIZE = 500
-NUMBER_OF_BINS = 9
+NUMBER_OF_BINS = 5
 
 COGNATES_LIST = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/combined_synset_list.csv"
 SYNSET_ORIGIN = 'c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/combined_synset_list_with_origin.csv'
@@ -66,49 +70,60 @@ class BinaryNLIClassifier:
         self.non_natives_user_to_distance_from_border_line = {}
         self.natives_user_to_distance_from_border_line = {}
         self.createFunctionWordList()
+        # self.create_pos_trigram_list()
         # self.createFeatureVectors()
         # self.splitDataAndClassify()
         
-        
+
+    def create_pos_trigram_list(self):
+        pos_tri_df = pd.read_csv(POS_TRIGRAMS_FILE)
+        most_frequent_pos = list(pos_tri_df.nlargest(TOP_FREQUENT_POS_TRIGRAMS, 'count')['pos_trigram'])
+        self.pos_trigram_list = most_frequent_pos
+        print(self.pos_trigram_list[1:10])
      
     def createFunctionWordList(self):
         with open(self.function_words_file, 'r') as func_words:
             for word in func_words: 
                 self.function_words_list.append(word.strip())   
                
-    def createFeatureVectors(self,external_test): 
-        contents = []
-       
-    
-        # with open('debug.txt','w', encoding='utf-8') as debug:
-        #     for f in os.listdir(GERMANIC_DATASET):
-        #         self.non_natives.append(GERMANIC_DATASET + f)   
-        #         debug.write(f + "\n")
-        # for f in os.listdir(NATIVE_DATASET):
-        #     self.natives.append(NATIVE_DATASET + f)
-        # self.natives = sample(self.natives,len(self.non_natives))
-        # i = 0
-       
+    def createFeatureVectors(self,external_test, native_source_dir, native_pos_dir, non_native_source_dir, non_native_pos_dir):
         contents = self.non_natives+self.natives
+
+        function_word_dataset = [os.path.join(non_native_source_dir, f) for f in self.non_natives]
+        function_word_dataset.extend([os.path.join(native_source_dir, f) for f in self.natives])
+        pos_trigrams_dataset = [os.path.join(non_native_pos_dir, f) for f in self.non_natives]
+        pos_trigrams_dataset.extend([os.path.join(native_pos_dir, f) for f in self.natives])
+        print(len(function_word_dataset))
+        print(len(pos_trigrams_dataset))
         # print(len(contents))
-        vectorizer = TfidfVectorizer(input='filename',token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",vocabulary=self.function_words_list)
-        if len(external_test) > 0:
-            self.ext_y = vectorizer.fit_transform(external_test)
-        self.X = vectorizer.fit_transform(contents)
+        function_word_vectorizer = TfidfVectorizer(input='filename',token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",vocabulary=self.function_words_list)
+        pos_tri_vectorizer = TfidfVectorizer(input='filename', ngram_range=(3, 3) )
+        # print(vectorizer.vocabulary)
+        # if len(external_test) > 0:
+        #     self.ext_y = vectorizer.fit_transform(external_test)
+
+        function_word_X = function_word_vectorizer.fit_transform(function_word_dataset)
+        pos_tri_X = pos_tri_vectorizer.fit_transform(pos_trigrams_dataset)
+        print(function_word_X.shape)
+        print(pos_tri_X.shape)
+        self.X = sp.hstack([function_word_X, pos_tri_X], format='csr')
+        # self.X = [function_word_X, pos_tri_X]
+        # combined_features = FeatureUnion([('function_words', function_word_X), ('pos_tri', pos_tri_X)])
+        # combined_features.transform(self.X)
+        # self.X = pos_tri_X
+
+
+
         print("X:")
         print(self.X.shape)
-        self.Y = [0]*len(self.non_natives) + [1]*len(self.natives) 
-        # class_weights = class_weight.compute_class_weight('balanced', 
-                                                 # np.unique(self.Y),
-                                                 # self.Y)
+
+        self.Y = [0]*len(self.non_natives) + [1]*len(self.natives)
         oversample = SMOTE()
         self.X, self.Y = oversample.fit_resample(self.X, self.Y)
        
 
 
-        scoring = {'accuracy' : make_scorer(accuracy_score), 
-           'precision' : make_scorer(precision_score),
-           'recall' : make_scorer(recall_score), 
+        scoring = {'accuracy' : make_scorer(accuracy_score),
            'f1_score' : make_scorer(f1_score)}
         kfold = StratifiedKFold(n_splits=10)
         results = cross_validate(estimator=self.classifier,
@@ -121,7 +136,7 @@ class BinaryNLIClassifier:
         print("f1: {}".format(np.mean(results['test_f1_score'])))
         scores = cross_val_score(self.classifier, self.X, self.Y, cv=10)
         print(scores)
-        print(np.mean(scores))
+        # print(np.mean(scores))
         # print((self.X).shape)
         
         # # i = 0
@@ -134,7 +149,7 @@ class BinaryNLIClassifier:
          X_train, X_test, y_train, y_test = train_test_split(self.X, self.Y, test_size=0.1, random_state=0)
          clf = self.classifier.fit(X_train,y_train)
          print(clf.score(X_test,y_test))
-         i = 0
+          # i = 0
          chunks_to_dist = {}
          if len(external_test) > 0:
              # with open("low_vs_high_med_as_test.csv",'w', encoding='utf-8') as rf:
@@ -185,13 +200,14 @@ class BinaryNLIClassifier:
          print("writing dict")
          for i in range(len(self.non_natives)):             
                fv = self.X.getrow(i)               
-               self.non_natives_user_to_distance_from_border_line[self.non_natives[i]] = [self.classifier.decision_function(fv), self.classifier.predict_proba(fv)]
+               self.non_natives_user_to_distance_from_border_line[self.non_natives[i]] = [self.classifier.decision_function(fv) ]
+               # print(self.classifier.predict_proba(fv))
          print(len(self.non_natives_user_to_distance_from_border_line))
          start = len(self.non_natives)
          i = 0
          for i in range(len(self.natives)):             
                fv = self.X.getrow(i+start)
-               self.natives_user_to_distance_from_border_line[self.natives[i]] = [self.classifier.decision_function(fv), self.classifier.predict_proba(fv)]
+               self.natives_user_to_distance_from_border_line[self.natives[i]] = [self.classifier.decision_function(fv)]
                   
              
          # with open('TOEFL_non_natives_distances.csv','w+',encoding='utf-8') as nndist:
@@ -444,11 +460,11 @@ def Main():
     
     # #### Reddit
     binNLI_clf = BinaryNLIClassifier()
- 
-    binNLI_clf.natives = [os.path.join(REDDIT_NATIVE_CHUNKS,f) for f in os.listdir(REDDIT_NATIVE_CHUNKS)]
+
+    binNLI_clf.natives = [f for f in os.listdir(REDDIT_NATIVE_CHUNKS)]
     # binNLI_clf.natives = binNLI_clf.natives[1:100]
     #germanic_users = [os.path.join(REDDIT_GERMANIC_CHUNKS,f) for f in os.listdir(REDDIT_GERMANIC_CHUNKS)]
-    romance_users = [os.path.join(REDDIT_ROMANCE_CHUNKS,f) for f in os.listdir(REDDIT_ROMANCE_CHUNKS)]
+    romance_users = [f for f in os.listdir(REDDIT_ROMANCE_CHUNKS)]
     binNLI_clf.non_natives =  romance_users
     
     # binNLI_clf.non_natives = binNLI_clf.non_natives[0:300]
@@ -457,8 +473,10 @@ def Main():
     print(len(binNLI_clf.natives))
     
     external_test = []
-    binNLI_clf.createFeatureVectors(external_test)
+    binNLI_clf.createFeatureVectors(external_test, REDDIT_NATIVE_CHUNKS, REDDIT_NATIVE_POS_CHUNKS, REDDIT_ROMANCE_CHUNKS, REDDIT_ROMANCE_POS_CHUNKS)
+
     binNLI_clf.splitDataAndClassify(external_test)
+    return
     true_non_natives = {}
     false_natives = {}
     for key,val in binNLI_clf.non_natives_user_to_distance_from_border_line.items():
@@ -469,12 +487,14 @@ def Main():
    
     bins = pd.qcut(np.array(list(true_non_natives.values())),NUMBER_OF_BINS,labels=False)
     
-    # print(true_non_natives)
-    data = {'User': list(true_non_natives.keys()) + list(false_natives.keys()), 'Distance' :  list(true_non_natives.values()) + list(false_natives.values()), 'grade' : list(bins) + [NUMBER_OF_BINS] * len(false_natives.keys())}
+
+    data = {'User': list(true_non_natives.keys()) + list(false_natives.keys()),
+            'Distance': list(true_non_natives.values()) + list(false_natives.values()),
+            'grade': list(bins) + [NUMBER_OF_BINS] * len(false_natives.keys())}
     
     df = pd.DataFrame(data)
     print('writing csv')
-    df.to_csv("10bins_over2000 .csv")
+    df.to_csv("complete_users_6_bins_log_reg_toy.csv")
     return
     #Just checking rattr -- distance correlation
     with open("Germanic_bin_mattr.csv", 'w', encoding='utf-8') as ttr_bin_file:
