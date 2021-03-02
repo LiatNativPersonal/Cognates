@@ -10,7 +10,7 @@ import openpyxl as px
 
 class AgeOfAquisitionMeasureCalculator:
     AOA_dict = {}
-    AOA_file = "c:/Users/liatn/Documents/Liat/Research/Cognates/English proficiency measures/AoA_ratings_Kuperman_et_al_BRM.xlsx"
+    AOA_file = r"c:\Users\User\Documents\Liat\Research\Cognates\English proficiency measures\AoA_ratings_Kuperman_et_al_BRM.xlsx"
     
     def __init__(self):
         self.avg_AOA = 0.0

@@ -9,7 +9,7 @@ import csv
 
 class NamingRTMeasureCalculator:
     naming_RT_dictionary = {}
-    naming_RT_file = "c:/Users/liatn/Documents/Liat/Research/Cognates/English proficiency measures/Naming_RT.csv"
+    naming_RT_file = r"c:\Users\User\Documents\Liat\Research\Cognates\English proficiency measures\Naming_RT.csv"
     
     def __init__(self):
         self.avg_naming_RT = 0.0

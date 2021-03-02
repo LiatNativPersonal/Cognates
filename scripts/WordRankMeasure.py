@@ -10,8 +10,8 @@ from nltk.corpus import wordnet as wn
 
 class WordRankMeasureCalculator:
     rank_dictionary = {}
-    vocabname = "c:/Users/liatn/Documents/Liat/Research/Cognates/English proficiency measures/vocab.txt"
-    word_count_file = "c:/Users/liatn/Documents/Liat/Research/Cognates/google_1grams/1gms/vocab_cs"
+    vocabname = r"c:\Users\User\Documents\Liat\Research\Cognates\English proficiency measures\vocab.txt"
+    word_count_file = r"c:\Users\User\Documents\Liat\Research\Cognates\google_1grams\1gmsvocab_cs"
     def __init__(self):
         self.avg_rank = 0
         self.log_avg_rank = 0
