@@ -18,13 +18,13 @@ class RedditUser:
     word_rank_measure_calculator = WordRankMeasureCalculator()
     naming_RT_measure_calculator = NamingRTMeasureCalculator()
     aoa_measure_calculator = AgeOfAquisitionMeasureCalculator()
-    def __init__(self, p_name, p_l1):
+    def __init__(self, p_name, p_l1, text_file=""):
         self.user_name = p_name
         self.l1 = p_l1
         self.number_of_tokens = 0
         self.number_of_sentences = 0
         self.text = []
-        self.text_file = ""
+        self.text_file = text_file
         self.type_token_ratio = 0.0
         self.avg_word_rank = 0.0
         self.avg_log_word_rank = 0.0
