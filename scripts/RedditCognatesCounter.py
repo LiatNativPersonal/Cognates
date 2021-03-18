@@ -11,35 +11,13 @@ import pandas as pd
 from collections import Counter
 
 class RedditCognatesCounter:
-    
-      
-
-        
-    def read_cognages_list(self, cognates_list_file):
-        # cog_list = {}
-        self.cognates_df = pd.read_csv(cognates_list_file)
-        # with open(cognates_list_file, "r", encoding="utf-8") as cognates_file:
-        #     syn_set_count = 0
-        #     for line in cognates_file:
-        #         syn_set_count += 1
-        #         cog_syn_set_list=[]
-        #         for cognate in line.split():
-        #             cognate = cognate.strip()
-        #             cog_syn_set_list.append(cognate)
-        #             if cognate not in self.cog_to_syn_set.keys():
-        #                 self.cog_to_syn_set[cognate] = []                        
-        #             self.cog_to_syn_set[cognate].append(syn_set_count)
-        #         cog_list[syn_set_count] = cog_syn_set_list
-        #     self.total_syn_set_count = syn_set_count
-        # return cog_list
                 
     def __init__(self, cognates_list_file):
         self.total_syn_set_count = 0
         self.users_cognate_counts_dict = {}
-        self.cog_to_syn_set = {}        
-        # self.cognates_list = self.read_cognages_list(cognates_list_file)
-        self.read_cognages_list(cognates_list_file)
-        self.word_list = list(self.cognates_df['word'])
+        self.cog_to_syn_set = {}
+        self.cognates_df = pd.read_csv(cognates_list_file)
+        self.word_list = self.cognates_df['word'] + "_" + self.cognates_df['POS']
         self.user_word_to_count = {}
         
 
@@ -48,14 +26,6 @@ class RedditCognatesCounter:
     def init_user_cognate_count_dict(self):
         user_cog_df = self.cognates_df[['synset','word','Source']].copy()
         user_cog_df['count'] = 0
-        
-        # cog_count_dict = {}
-        # cog_count_dict
-        # for key,synset in self.cognates_list.items():
-        #     syn_set_dict={}
-        #     cog_count_dict[key] = syn_set_dict
-        #     for cognate in synset:
-        #         syn_set_dict[cognate] = 0
         return user_cog_df
     
     def get_total_cognate_count_for_user(self, user, user_text):
@@ -66,9 +36,7 @@ class RedditCognatesCounter:
                 if token in self.cog_to_syn_set.keys() or basic_token in self.cog_to_syn_set.keys():                        
                     user.totalCognateCount += 1
             
-    def count_cognate_for_user_line(self,user, tok_line): 
-        
-       
+    def count_cognate_for_user_line(self,user, tok_line):
         lemmatizer = WordNetLemmatizer()        
         for token in tok_line:
             basic_token = lemmatizer.lemmatize(token) 
@@ -105,34 +73,36 @@ class RedditCognatesCounter:
         
         
     def count_cognates_for_user(self, user):
-        self.user_word_to_count[user] = Counter(dict((w, 0) for w in self.word_list))
+        # self.user_word_to_count[user] = Counter(dict((w, 0) for w in self.word_list))
         lemmatizer = WordNetLemmatizer()  
         if user not in self.users_cognate_counts_dict.keys():
             self.users_cognate_counts_dict[user] = self.init_user_cognate_count_dict()
             # user_df = self.users_cognate_counts_dict[user]
-        with open(user.text_file, "r", encoding="utf-8") as input_file: 
-            # file_words = str([word for line in input_file for word in line.split(" ")])
-            # file_rows = 
+        with open(user.text_file, "r", encoding="utf-8") as input_file:
             tok_rows = [nltk.word_tokenize(row) for row in input_file.read().split("\n")]
-          
             tok_words = [word.lower() for row in tok_rows for word in row]           
             lemmatized_words = [(lemmatizer.lemmatize(word)).lower() for word in tok_words]     
-            diff = list((Counter(tok_words) - Counter(lemmatized_words)).elements()) 
-         
-            # diff = [word for word in tok_words if word not in lemmatized_words]            
+            diff = list((Counter(tok_words) - Counter(lemmatized_words)).elements())
             full = lemmatized_words + diff
-            (self.user_word_to_count[user]).update(full)
-            
-        #     for line in input_file:               
-        #         line = nltk.word_tokenize(line)
-        #         self.count_cognate_for_user_line(user, line)
-        # for cognate,count in self.user_word_to_count[user].items():
-        #      relveant_synsets = list((user_df.loc[user_df['word'] == cognate])['synset'])
-        #      for synset in relveant_synsets:
-        #          if (user_df.loc[user_df['synset']==synset])['count'].sum() == 0 :
-        #              user.totalSynsetUsed += 1
-        #      user_df.loc[user_df['word']== cognate,'count'] += 1
-        #      user.totalCognateCount += len(relveant_synsets)
+            cnt = Counter(full)
+            self.user_word_to_count[user] = {key:cnt[key] for key in cnt if key in self.word_list}
+            extra = {x:0 for x in self.word_list if x not in self.user_word_to_count[user].keys()}
+            self.user_word_to_count[user].update(extra)
+            for word in self.word_list:
+                user_df = self.users_cognate_counts_dict[user]
+                # print(word)
+                # print(self.user_word_to_count[user][word])
+                count = self.user_word_to_count[user][word]
+                user_df.loc[(user_df.word == word),'count'] = count
+                # if count > 0:
+                #     print(word)
+                #     print(user_df[user_df['word'] == word])
+
+
+
+
+
+
     
                 
     
