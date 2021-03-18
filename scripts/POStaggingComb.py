@@ -10,16 +10,19 @@ END_SENTENCE = "<end>"
 ROMANCE_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Romance/Over2000"
 NATIVE_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Native\complete_users_toy"
 # ROMANCE_POS_TAG_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\complete_users_POS_TagToy"
-ROMANCE_POS_TAG_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Romance/Over2000_POS_tag"
+ROMANCE_POS_TAG_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Romance/txt_pos_over_2000"
 NATIVE_POS_TAG_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Native\complete_users_POS_TagToy"
 
 
 def POS_tag_chunks(tagger, input_dir, output_dir):
     files = os.listdir(input_dir)
     # POS Tagging and writing tagged sentences to files
+    i = 1
+    dir_len = len(files)
     for file in files:
+        print('processing file: {}, {} of {}'.format(file,i,dir_len))
         with open(os.path.join(input_dir, file), 'r', encoding='utf-8') as f:
-            outfile = os.path.join(output_dir, "comb_" +file)
+            outfile = os.path.join(output_dir, file)
             if os.path.exists(outfile):
                 continue
             with open(outfile, 'w', encoding='utf-8') as out:
@@ -28,9 +31,9 @@ def POS_tag_chunks(tagger, input_dir, output_dir):
                     doc = tagger(sent)
                     out.write(BEGIN_SENTENCE)
                     for word in doc:
-                        out.write(word.text + " " + word.pos_ + " ")
-                    out.write (END_SENTENCE + "\n")
-        break
+                        out.write(word.text + "_" + word.pos_ + " ")
+                    out.write(END_SENTENCE + "\n")
+
 
 
 def create_POS_trigram_dict(input_dir, pos_trigram_dict):
@@ -60,13 +63,13 @@ def write_pos_trigrams_to_file(pos_trigram_dict, output_file):
 
 def main():
     nlp = spacy.load("en_core_web_sm")
-    doc = nlp("he nailed it")
+    # doc = nlp("he nailed it")
     # word_list = ['nail']
     # for word in word_list:
     #     doc = nlp(word)
     #     print(len(doc))
-    for token in doc:
-        print(token.text, token.pos_)
+    # for token in doc:
+    #     print(token.text, token.pos_)
     # pos_trigram_dict = {}
     POS_tag_chunks(nlp, ROMANCE_CHUNKS, ROMANCE_POS_TAG_CHUNKS)
     # print('done pos tagging romance users')
