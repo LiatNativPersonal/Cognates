@@ -1,11 +1,12 @@
 import os
 import spacy
 import csv
+
 from random import sample
 
 SAMPLE_SIZE = 10
-BEGIN_SENTENCE = "<beg>"
-END_SENTENCE = "<end>"
+BEGIN_SENTENCE = "<s>"
+END_SENTENCE = "</s>"
 #ROMANCE_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\complete_users_toy"
 ROMANCE_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Romance/Over2000"
 NATIVE_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Native\complete_users_toy"
@@ -31,6 +32,7 @@ def POS_tag_chunks(tagger, input_dir, output_dir):
                         out.write(word.text + " " + word.pos_ + " ")
                     out.write (END_SENTENCE + "\n")
         break
+
 
 
 def create_POS_trigram_dict(input_dir, pos_trigram_dict):
@@ -59,7 +61,7 @@ def write_pos_trigrams_to_file(pos_trigram_dict, output_file):
 
 
 def main():
-    nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
     doc = nlp("he nailed it")
     # word_list = ['nail']
     # for word in word_list:

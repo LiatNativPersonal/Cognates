@@ -496,57 +496,6 @@ def Main():
     print('writing csv')
     df.to_csv("complete_users_6_bins_log_reg_toy.csv")
     return
-    #Just checking rattr -- distance correlation
-    with open("Germanic_bin_mattr.csv", 'w', encoding='utf-8') as ttr_bin_file:
-        ttr_bin_file.write("user, mattr\n")
-        content = ""
-        word_list = []
-        for i in range(NUMBER_OF_BINS + 1):
-            bin_df = df[df['grade']==i]
-            bin_text_files = bin_df['User'].to_list()
-            # bin_text_files = [f.replace("Balanced","Final") for f in bin_text_files]
-            # print(bin_text_files)
-            
-           
-            with open("ger_bin{}.txt".format(i), "w", encoding='utf-8') as binOutfile:
-                 for f in bin_text_files:
-                     with open(f, "r", encoding='utf-8') as infile:
-                         # binOutfile.write(infile.read())
-                         content += infile.read()
-        # print(content)
-        print("making word list")
-        word_list = content.split(" ")
-        # print(word_list)
-        print("removing punctuation")
-        lemmatizer = WordNetLemmatizer() 
-        word_list = [''.join(lemmatizer.lemmatize(c) for c in s if c not in string.punctuation) for s in word_list]
-        print("removing words not in word net")
-       
-        # word_list = [''.join(lemmatizer.lemmatize(c) for c in s if c in words.words() ) for s in word_list]
-        # print(word_list)
-        cnt = Counter()
-        print("counting")
-        cnt.update(word_list)
-        # print(cnt)
-        with open("counter.csv", 'w', encoding= 'utf-8') as cnt_file:
-            cnt_file.write("word, in_wordnet, count\n")
-            for key,value in cnt.items():
-                in_wordnet = 'No'
-                if key in words.words():
-                    in_wordnet = 'Yes'                    
-                cnt_file.write("{},{},{}\n".format(key,in_wordnet,value))
-        return
-            # print("calculating ttr")
-            # with open("ger_bin{}.txt".format(i), "r", encoding='utf-8') as user_file:
-            #     text = user_file.read()
-            #     lex = LexicalRichness(str(text))
-            
-            # ttr_bin_file.write("ger_bin{}.txt,".format(i))
-            # ttr_bin_file.write(str(lex.mattr(window_size=2500 )))
-            # ttr_bin_file.write("\n")
-    return
-        
-    
     
     
     # df.to_csv("reddit{}bins.csv".format(NUMBER_OF_BINS))
