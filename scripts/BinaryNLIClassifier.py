@@ -8,11 +8,12 @@ Created on Thu Jul 23 11:10:22 2020
 
 from sklearn.model_selection import cross_val_score, GridSearchCV, train_test_split, cross_validate, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, TfidfTransformer
 from sklearn.pipeline import FeatureUnion
 from sklearn.utils import class_weight
 import pandas as pd
-from nltk.stem import WordNetLemmatizer 
+from nltk.stem import WordNetLemmatizer
+from nltk import ngrams
 from nltk.tokenize import sent_tokenize, word_tokenize
 from collections import OrderedDict
 from collections import Counter
@@ -30,6 +31,7 @@ from scipy.sparse import vstack
 import shutil
 from lexicalrichness import LexicalRichness
 import os
+import pickle
 from nltk.corpus import words
 # import stanza
 REDDIT_GERMANIC_DATASET = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Germanic/NoBound/"
@@ -40,9 +42,8 @@ REDDIT_ROMANCE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Re
 REDDIT_NATIVE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/complete_users_toy/"
 REDDIT_ROMANCE_POS_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/complete_users_POS_TagToy/"
 REDDIT_NATIVE_POS_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/complete_users_POS_TagToy/"
-FUNCTION_WORDS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/function-words.csv"
-POS_TRIGRAMS_FILE = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/scripts/trigrams_toy_count.csv"
-TOP_FREQUENT_POS_TRIGRAMS = 300
+FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\function-words.csv"
+POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\POS_trigrams.txt"
 
 TOEFL_INDEX = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/ETS_Corpus_of_Non-Native_Written_English/data/text/index.csv"
 TOEFL_PATH = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/ETS_Corpus_of_Non-Native_Written_English/data/text/"
@@ -53,8 +54,16 @@ LOCNESS_PATH = "c:/Users/liatn/Documents/Liat/Research//Repo/Cognates/LOCNESS/te
 TOEFL_SHUFFELED_CHUNKS_PATH = TOEFL_PATH + "shuff_grade_aggr/"
 TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH = TOEFL_SHUFFELED_CHUNKS_PATH + "/balanced/"
 LOCNESS_SHUFFELED_CHUNKS_PATH = "c:/Users/liatn/Documents/Liat/Research//Repo/Cognates/LOCNESS/shuff/"
-CHUNK_SIZE = 500
+CHUNK_SIZE = 2000
 NUMBER_OF_BINS = 5
+CHUNK_SIZE = 2000
+BEGIN_SENTENCE = "<s>"
+END_SENTENCE = "</s>"
+SEPERATOR = "_"
+TRI = 3
+TOP_POS_TRIGRAMS = 500
+NATIVE = 0
+NON_NATIVE = 1
 
 COGNATES_LIST = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/combined_synset_list.csv"
 SYNSET_ORIGIN = 'c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/combined_synset_list_with_origin.csv'
@@ -76,17 +85,74 @@ class BinaryNLIClassifier:
         
 
     def create_pos_trigram_list(self):
-        pos_tri_df = pd.read_csv(POS_TRIGRAMS_FILE)
-        most_frequent_pos = list(pos_tri_df.nlargest(TOP_FREQUENT_POS_TRIGRAMS, 'count')['pos_trigram'])
-        self.pos_trigram_list = most_frequent_pos
-        print(self.pos_trigram_list[1:10])
+        with open(POS_TRIGRAMS_FILE, 'r', encoding='utf-8') as POS_tri:
+            self.POS_trigrams_list = [tri.strip() for tri in POS_tri]
      
     def createFunctionWordList(self):
         with open(self.function_words_file, 'r') as func_words:
-            for word in func_words: 
-                self.function_words_list.append(word.strip())   
+           self.function_words_list = [word.strip() for word in func_words]
+
+
+    def createFeatureVectorsLazy(self, INPUT_DIR, label, chunks_record):
+        function_words_vectorizer = CountVectorizer(vocabulary=self.function_words_list)
+        POS_vectorizer = CountVectorizer(ngram_range=(3, 3), vocabulary=self.POS_trigrams_list)
+        function_word_feature_vector = []
+        POS_feature_vector = []
+        for f in os.listdir(INPUT_DIR):
+            with open(os.path.join(INPUT_DIR, f), 'rb') as fh:
+                text = pickle.load(fh)
+                shuffle(text)
+                text = [s.split(BEGIN_SENTENCE)[1] for s in text]
+                text = [s.split(END_SENTENCE)[0] for s in text]
+                chunk = 0
+                token_counter = 0
+                lemmas = {}
+                pos = {}
+                lemmas[chunk] = []
+                pos[chunk] = []
+                chunks_record.append("{}_{}".format(f, chunk))
+                for sentence in text:
+                    if token_counter >= CHUNK_SIZE:
+                        chunk += 1
+                        pos[chunk] = []
+                        lemmas[chunk] = []
+                        token_counter = 0
+                        lemmas[chunk].append(lemmas_seq)
+                        pos[chunk].append(pos_seq)
+                        chunks_record.append("{}_{}".format(f, chunk))
+                    sentence = sentence.strip()
+                    token_counter += len(sentence.split(" "))
+                    pos_seq = BEGIN_SENTENCE + " "
+                    lemmas_seq = ""
+                    for token in sentence.split(" "):
+                        lemma_pos = token.split(SEPERATOR)
+                        lemmas_seq += lemma_pos[0] + " "
+                        pos_seq += lemma_pos[1] + " "
+                    pos_seq += END_SENTENCE
+
+                #last chunk may be smaller than defined size, if so - ignore it
+                if token_counter < CHUNK_SIZE:
+                    pos.pop(chunk)
+                    lemmas.pop(chunk)
+                for index in range(chunk - 1):
+                    function_word_feature_vector.append(function_words_vectorizer.fit_transform(lemmas[index]))
+                    POS_feature_vector.append(POS_vectorizer.fit_transform(pos[index]))
+
+        result_func_words = vstack(function_word_feature_vector)
+        result_POS_trigrams = vstack(POS_feature_vector)
+        final_feature_vecotr_structure = hstack([result_func_words, result_POS_trigrams], format='csr')
+        tf_idf_transformer = TfidfTransformer()
+        tf_idf_transformer.fit(final_feature_vecotr_structure)
+        tf_idf_transformer.transform(final_feature_vecotr_structure)
+        labels = [label] * final_feature_vecotr_structure.shape[0]
+        return final_feature_vecotr_structure, labels
+
+
+    def balanceClassWithSMOTE(self):
+        oversample = SMOTE()
+        self.X, self.Y = oversample.fit_resample(self.X, self.Y)
                
-    def createFeatureVectors(self,external_test, native_source_dir, native_pos_dir, non_native_source_dir, non_native_pos_dir):
+    def createFeatureVectors(self, native_source_dir, native_pos_dir, non_native_source_dir, non_native_pos_dir):
         contents = self.non_natives+self.natives
 
         function_word_dataset = [os.path.join(non_native_source_dir, f) for f in self.non_natives]
@@ -97,30 +163,18 @@ class BinaryNLIClassifier:
         print(len(pos_trigrams_dataset))
         # print(len(contents))
         function_word_vectorizer = TfidfVectorizer(input='filename',token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",vocabulary=self.function_words_list)
-        pos_tri_vectorizer = TfidfVectorizer(input='filename', ngram_range=(3, 3) )
-        # print(vectorizer.vocabulary)
-        # if len(external_test) > 0:
-        #     self.ext_y = vectorizer.fit_transform(external_test)
+        pos_tri_vectorizer = TfidfVectorizer(input='filename', ngram_range=(3, 3))
 
         function_word_X = function_word_vectorizer.fit_transform(function_word_dataset)
         pos_tri_X = pos_tri_vectorizer.fit_transform(pos_trigrams_dataset)
         print(function_word_X.shape)
         print(pos_tri_X.shape)
         self.X = sp.hstack([function_word_X, pos_tri_X], format='csr')
-        # self.X = [function_word_X, pos_tri_X]
-        # combined_features = FeatureUnion([('function_words', function_word_X), ('pos_tri', pos_tri_X)])
-        # combined_features.transform(self.X)
-        # self.X = pos_tri_X
-
-
-
         print("X:")
         print(self.X.shape)
 
         self.Y = [0]*len(self.non_natives) + [1]*len(self.natives)
-        oversample = SMOTE()
-        self.X, self.Y = oversample.fit_resample(self.X, self.Y)
-       
+        self.balanceClassWithSMOTE()
 
 
         scoring = {'accuracy' : make_scorer(accuracy_score),
@@ -234,12 +288,8 @@ def calc_num_of_words_and_sentences(text, nlp):
     word_count = 0
     sent_count = 0
     types = []
-    doc = nlp(str(text))
     for line in text:
-        line = line.strip()        
-        # print(len(line))
-        # print(line)
-        # print(len(line.split(" ")))
+        line = line.strip()
         if len(line) > 0:
             doc = nlp(line)
             sent_count += 1
@@ -253,7 +303,6 @@ def calc_num_of_words_and_sentences(text, nlp):
                 
     
 def create_TOEFL_scrumbled_chunks(chunk_size):
-    # nlp = stanza.Pipeline(lang='en', processors='tokenize,lemma')
     lemmatizer = WordNetLemmatizer() 
     TOEFL_df = pd.read_csv(TOEFL_STAT)
     L1_to_level_data = {}
@@ -262,32 +311,7 @@ def create_TOEFL_scrumbled_chunks(chunk_size):
     grades = TOEFL_df["Score Level"].unique()
     print(grades)
     print(L1s)
-    
-    # word_count = []
-    # sent_count = []
-    # types_count = []
-    # i = 0
-    # for file in TOEFL_df['Filename']:       
-    #     with open(TOEFL_ESSEYS+file,'r',encoding='utf-8')as essay:
-            # w_c,s_c,t_c = calc_num_of_words_and_sentences(essay,nlp)
-            
-            # print(  t_c)
-            # word_count.append(w_c)
-            # sent_count.append(s_c)
-            # types_count.append(t_c)
-            # i+=1
-            # if i > 10 :
-            #     break
-    
-    # print(len(word_count))
-    # TOEFL_df['#token'] = word_count
-    # TOEFL_df['#Sent'] = sent_count
-    # TOEFL_df['#types'] = types_count
-    # TOEFL_df.to_csv(TOEFL_PATH+'stat.csv')
-    
-    
-    
-    
+
     for l1 in L1s:
         L1_to_level_data[l1] = {}
         for grade in grades:
@@ -303,16 +327,12 @@ def create_TOEFL_scrumbled_chunks(chunk_size):
                     lemmatized_line = []
                     for word in line.split(" "):
                         lemmatized_line.append(lemmatizer.lemmatize(word))
-                        
-                    # print(" ".join(lemmatized_line))
                     L1_to_level_data[row['Language']][row['Score Level']].append(" ".join(lemmatized_line))
                     level_to_text[row['Score Level']].append(" ".join(lemmatized_line))
                     # L1_to_level_data[row['Language']][row['Score Level']].append(line)
                     
     for grade,text in level_to_text.items():
-       print("level: {}, text size = {}".format(grade,len(text))) 
-       # if grade != 'low':
-       #     continue
+       print("level: {}, text size = {}".format(grade,len(text)))
        shuffle(text)
        i = 0
        chunk_num = 0
@@ -327,19 +347,7 @@ def create_TOEFL_scrumbled_chunks(chunk_size):
                 i = 0
                 chunk_num += 1
                 chunk.clear()
-            
-            
-    
-    #aggrgate texts by bL1 and levl
-    # for L1,level in L1_to_level_data.items():
-    #     for lvl,text in level.items():
-    #         print("{},{},{}".format(L1,lvl,len(text)))
-    #         shuffle(text)
-    #         with open(TOEFL_SHUFFELED_CHUNKS_PATH + L1+"_"+lvl+".txt",'w',encoding='utf-8') as of:
-    #             for line in text:
-    #                 of.write(line + "\n")
-            
-                
+
                 
 def create_LOCNESS_scrumbled_chunks(chunk_size):
     lemmatizer = WordNetLemmatizer() 
@@ -403,20 +411,6 @@ def load_TOEFL_LOCNESS():
         
         
     return natives,non_natives_df
-    # print(x.sample(n =20))
-    # print(TOEFL_df.head(5))
-    # print(TOEFL_df['L1'])
-
-
-
-
-            
-        
-        
-
-
-
-
 
 def Main():
     # TOEFL_df = pd.read_csv(TOEFL_INDEX)
