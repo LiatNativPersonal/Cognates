@@ -13,10 +13,10 @@ NATIVE_CHUNKS =  r"/data/home/univ/lnativ1/RedditData/Native/Over2000"
 # ROMANCE_POS_TAG_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\complete_users_POS_TagToy"
 ROMANCE_POS_TAG_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
 NATIVE_POS_TAG_LEMMAS =  r"/data/home/univ/lnativ1/RedditData/Native/lemmas_pos_over_2000/"
-NATIVE_POS_TAG_ONLY =  r"/data/home/univ/lnativ1/RedditData/Native/Over2000_POS_tag/"
 
 
-def POS_tag_chunks(nlp, input_dir, combined_output_dir, POS_only_output_dir):
+
+def POS_tag_chunks(nlp, input_dir, combined_output_dir):
     files = os.listdir(input_dir)
 
     # Tokenize, lemmetaize, POS Tagging and pickling processed text
@@ -26,27 +26,21 @@ def POS_tag_chunks(nlp, input_dir, combined_output_dir, POS_only_output_dir):
 
         with open(os.path.join(input_dir, file), 'r', encoding='utf-8') as f:
             outfile = os.path.join(combined_output_dir, file.split(".txt")[0])
-            tags_only_outfile = os.path.join(POS_only_output_dir, file.split(".txt")[0])
             print('processing file: {}, {} of {}'.format(file.split(".txt")[0], i, dir_len))
-            if os.path.exists(outfile) and os.path.exists(tags_only_outfile):
+            if os.path.exists(outfile):
                 continue
             text = f.read().split("\n")
             tagged_text = []
-            tags = []
             for sent in text:
                 doc = nlp(sent)
                 tagged_sentence = BEGIN_SENTENCE
-                tags = BEGIN_SENTENCE
                 for word in doc:
                     tagged_sentence += word.lemma_ + "_" + word.pos_ + " "
-                    tags += word.pos_ + " "
                 tagged_sentence += END_SENTENCE
-                tags += END_SENTENCE
                 tagged_text.append(tagged_sentence)
             with open(outfile, 'wb') as out:
                 pickle.dump(tagged_text, out)
-            with open(tags_only_outfile, 'wb') as tags_out:
-                pickle.dump(tags, tags_out)
+
 
 
 
@@ -86,7 +80,7 @@ def main():
     # for token in doc:
     #     print(token.text, token.pos_)
     # pos_trigram_dict = {}
-    POS_tag_chunks(nlp, NATIVE_CHUNKS, NATIVE_POS_TAG_LEMMAS, NATIVE_POS_TAG_ONLY)
+    POS_tag_chunks(nlp, NATIVE_CHUNKS, NATIVE_POS_TAG_LEMMAS)
     # print('done pos tagging romance users')
     # POS_tag_chunks(nlp, ROMANCE_CHUNKS, ROMANCE_POS_TAG_CHUNKS)
     # create_POS_trigram_dict(ROMANCE_POS_TAG_CHUNKS, pos_trigram_dict)
