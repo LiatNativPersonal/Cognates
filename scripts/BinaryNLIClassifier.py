@@ -42,8 +42,18 @@ REDDIT_ROMANCE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/Re
 REDDIT_NATIVE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/complete_users_toy/"
 REDDIT_ROMANCE_POS_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/complete_users_POS_TagToy/"
 REDDIT_NATIVE_POS_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Native/complete_users_POS_TagToy/"
-FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\function-words.csv"
-POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\POS_trigrams.txt"
+
+# REDDIT_NATIVE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Native\lemmas_pos_over_2000"
+# REDDIT_ROMANCE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\lemmas_pos_over_2000"
+REDDIT_NATIVE_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Native/lemmas_pos_over_2000/"
+REDDIT_ROMANCE_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
+
+#
+# FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\function-words.csv"
+# POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\POS_trigrams.txt"
+
+FUNCTION_WORDS = r"/data/home/univ/lnativ1/RedditData/function-words.csv"
+POS_TRIGRAMS_FILE = r"/data/home/univ/lnativ1/RedditData/POS_trigrams.txt"
 
 TOEFL_INDEX = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/ETS_Corpus_of_Non-Native_Written_English/data/text/index.csv"
 TOEFL_PATH = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/ETS_Corpus_of_Non-Native_Written_English/data/text/"
@@ -56,14 +66,13 @@ TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH = TOEFL_SHUFFELED_CHUNKS_PATH + "/balanced/
 LOCNESS_SHUFFELED_CHUNKS_PATH = "c:/Users/liatn/Documents/Liat/Research//Repo/Cognates/LOCNESS/shuff/"
 CHUNK_SIZE = 2000
 NUMBER_OF_BINS = 5
-CHUNK_SIZE = 2000
 BEGIN_SENTENCE = "<s>"
 END_SENTENCE = "</s>"
 SEPERATOR = "_"
 TRI = 3
 TOP_POS_TRIGRAMS = 500
-NATIVE = 0
-NON_NATIVE = 1
+NATIVE = 1
+NON_NATIVE = 0
 
 COGNATES_LIST = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/combined_synset_list.csv"
 SYNSET_ORIGIN = 'c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/combined_synset_list_with_origin.csv'
@@ -79,7 +88,7 @@ class BinaryNLIClassifier:
         self.non_natives_user_to_distance_from_border_line = {}
         self.natives_user_to_distance_from_border_line = {}
         self.createFunctionWordList()
-        # self.create_pos_trigram_list()
+        self.create_pos_trigram_list()
         # self.createFeatureVectors()
         # self.splitDataAndClassify()
         
@@ -98,7 +107,7 @@ class BinaryNLIClassifier:
         POS_vectorizer = CountVectorizer(ngram_range=(3, 3), vocabulary=self.POS_trigrams_list)
         function_word_feature_vector = []
         POS_feature_vector = []
-        for f in os.listdir(INPUT_DIR):
+        for f in os.listdir(INPUT_DIR)[0:1000]:
             with open(os.path.join(INPUT_DIR, f), 'rb') as fh:
                 text = pickle.load(fh)
                 shuffle(text)
@@ -173,7 +182,7 @@ class BinaryNLIClassifier:
         print("X:")
         print(self.X.shape)
 
-        self.Y = [0]*len(self.non_natives) + [1]*len(self.natives)
+        self.Y = [NON_NATIVE]*len(self.non_natives) + [NATIVE]*len(self.natives)
         self.balanceClassWithSMOTE()
 
 
@@ -448,7 +457,42 @@ def Main():
     # # print(highs)
     # return
    
-   
+
+
+   #### REDDIT POS_LEMMAS LAZY FV CONSTRUCTION
+
+    binNLI_clf = BinaryNLIClassifier()
+
+    X_non_native, y_non_native = binNLI_clf.createFeatureVectorsLazy(REDDIT_ROMANCE_LEMMAS_POS, NON_NATIVE, binNLI_clf.non_natives)
+    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(REDDIT_NATIVE_LEMMAS_POS, NATIVE, binNLI_clf.natives)
+    print(X_nativ.shape)
+    print(X_non_native.shape)
+    binNLI_clf.X = vstack((X_nativ,X_non_native))
+    binNLI_clf.Y = y_native + y_non_native
+    binNLI_clf.balanceClassWithSMOTE()
+    external_test = []
+    binNLI_clf.splitDataAndClassify(external_test)
+    # print(len(binNLI_clf.non_natives_user_to_distance_from_border_line))
+
+    true_non_natives = {}
+    false_natives = {}
+    for key, val in binNLI_clf.non_natives_user_to_distance_from_border_line.items():
+        if val[0][0] < 0:
+            true_non_natives[key] = val[0][0]
+        else:
+            false_natives[key] = val[0][0]
+
+    bins = pd.qcut(np.array(list(true_non_natives.values())), NUMBER_OF_BINS, labels=False)
+
+    data = {'User': list(true_non_natives.keys()) + list(false_natives.keys()),
+            'Distance': list(true_non_natives.values()) + list(false_natives.values()),
+            'grade': list(bins) + [NUMBER_OF_BINS] * len(false_natives.keys())}
+
+    df = pd.DataFrame(data)
+    print('writing csv')
+    df.to_csv("complete_users_6_bins_log_reg_toy.csv")
+
+    return
     
     
     
