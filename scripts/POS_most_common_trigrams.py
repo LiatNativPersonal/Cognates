@@ -1,6 +1,6 @@
 import os
 import pickle
-from collections import Counter
+from collections import Counter, OrderedDict
 from nltk import ngrams
 
 CHUNK_SIZE = 2000
@@ -11,15 +11,16 @@ TRI = 3
 TOP_POS_TRIGRAMS = 500
 
 NATIVE_DIR = r"/data/home/univ/lnativ1/RedditData/Native/lemmas_pos_over_2000/"
-NON_NATIVE_DIR = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
+ROMANCE_DIR = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
+GEMANIC_DIR = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
 # NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Native\lemmas_pos_over_2000"
 # NON_NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\lemmas_pos_over_2000"
-POS_TRIGRAMS = r"/data/home/univ/lnativ1/RedditData/POS_trigrams.txt"
+POS_TRIGRAMS = r"/data/home/univ/lnativ1/RedditData/GER_POS_trigrams.txt"
 # POS_TRIGRAMS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\POS_trigrams.txt"
 function_words_list = []
 
 POS_trigrams_vocab = Counter()
-INPUT_DIRS = [NATIVE_DIR, NON_NATIVE_DIR]
+INPUT_DIRS = [NATIVE_DIR, GEMANIC_DIR]
 for input_dir in INPUT_DIRS:
     for f in os.listdir(input_dir):
         print(f)
@@ -31,8 +32,10 @@ for input_dir in INPUT_DIRS:
                 sentence = sentence.strip()
                 pos_seq = BEGIN_SENTENCE + " " + " ".join([token.split(SEPERATOR)[1] for token in sentence.split()]) + " " + END_SENTENCE
                 POS_trigrams_vocab.update(ngrams(pos_seq.split(" "), TRI))
-most_common_trigrams = POS_trigrams_vocab.most_common(TOP_POS_TRIGRAMS)
-most_common_trigrams = [" ".join(x[0]) for x in most_common_trigrams]
+
+# most_common_trigrams = POS_trigrams_vocab.most_common(TOP_POS_TRIGRAMS)
+# most_common_trigrams = [" ".join(x[0]) for x in most_common_trigrams]
+POS_tri_sorted_by_value = OrderedDict(sorted(POS_trigrams_vocab.items(), key=lambda x: x[1], reverse=True))
 with open(POS_TRIGRAMS, 'w', encoding='utf-8') as POS_tri_file:
-    for pos_tri in most_common_trigrams:
-        POS_tri_file.write(pos_tri + '\n')
+    for pos_tri, count in POS_tri_sorted_by_value.items():
+        POS_tri_file.write(" ".join(pos_tri) + ', {}\n'.format(count))
