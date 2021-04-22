@@ -12,12 +12,14 @@ import random
 from WordRankMeasure import WordRankMeasureCalculator
 from NamingRTMeasure import NamingRTMeasureCalculator
 from AgeOfAquisitionMeasure import AgeOfAquisitionMeasureCalculator
+from LexicalRichnessCalculator import LexicalRichnessCalculator
 
 class RedditUser:
 
     word_rank_measure_calculator = WordRankMeasureCalculator()
     naming_RT_measure_calculator = NamingRTMeasureCalculator()
     aoa_measure_calculator = AgeOfAquisitionMeasureCalculator()
+    lexical_richness_calculator = LexicalRichnessCalculator()
     def __init__(self, p_name, p_l1, text_file=""):
         self.user_name = p_name
         self.l1 = p_l1
@@ -30,6 +32,7 @@ class RedditUser:
         self.avg_log_word_rank = 0.0
         self.avg_naming_RT = 0.0
         self.avg_age_of_aquisition = 0.0
+        self.lexical_richness_measures = {}
         self.sample_size = 0
         self.totalCognateCount = 0
         self.totalSynsetUsed = 0
@@ -73,6 +76,10 @@ class RedditUser:
 #        self.set_user_text_sample()
         content_tokens = [token for token in self.text if token in RedditUser.word_rank_measure_calculator.rank_dictionary.keys()]
         self.type_token_ratio = len(set(content_tokens)) / len(content_tokens)
+
+    def calculate_lexical_richness_measures(self):
+        self.lexical_richness_measures = self.lexical_richness_calculator.calculate_lexical_richness_measure(text)
+
         
     def calculate_word_rank_measure(self):
 #        self.set_user_text_sample()
