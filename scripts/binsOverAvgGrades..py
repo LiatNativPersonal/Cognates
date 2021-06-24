@@ -5,30 +5,40 @@ import re
 from RedditUser import RedditUser
 from RedditCognatesCounter import RedditCognatesCounter
 
-user_stat_file = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\scripts\complete_users_6_bins_log_reg_toy_stat.csv"
-output_file = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\scripts\avg_grade_bins.csv"
+user_stat_file = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\scripts\avg_romance_vs_natives_6_bins_stat.csv"
+output_file = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\scripts\avg_romance_vs_natives_6_bins_avg_grade_bins.csv"
 text_file_dir = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\over2000"
 NUMBER_OF_BINS = 6
 SYNSET_ORIGIN = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\combined_synset_list_with_origin_and_POS.csv"
-
+STD_DEV_THRESHOLD = 1.5
 
 df = pd.read_csv(user_stat_file)
-bins = pd.qcut(np.array(df['avg_grade']), NUMBER_OF_BINS,labels=False)
+
+stable_grades_df = df[df['stdev_grades'] <= STD_DEV_THRESHOLD]
+print(len(stable_grades_df))
+bins = pd.qcut(np.array(stable_grades_df['avg_grade']), NUMBER_OF_BINS,labels=False)
 user_to_text_file = {}
 i = 1
-for user in df['username']:
+for user in stable_grades_df['username']:
     username = user[1:len(user)-1]
     # print(username)
     # print(str(i) +" " + user[1:len(user)-1])
-
-    user_to_text_file[username] = [f for f in os.listdir(text_file_dir) if f.startswith(username + ".")][0]
+    try:
+        user_to_text_file[username] = [f for f in os.listdir(text_file_dir) if f.startswith(username + ".")][0]
+    except:
+        print(user)
+        print(username)
+        continue
     i += 1
 
 # print (user_to_text_file)
-data = {'User': user_to_text_file.keys(), 'Text_file':user_to_text_file.values(), 'avg_grade': df['avg_grade'], 'bin': list(bins)}
+data = {'User': user_to_text_file.keys(), 'Text_file':user_to_text_file.values(), 'avg_grade': stable_grades_df['avg_grade'], 'bin': list(bins)}
 #
 bins_df = pd.DataFrame(data)
-bins_df = pd.read_csv(output_file)
+fh = open(output_file, 'wb')
+bins_df.to_csv(fh)
+# bins_df = pd.read_csv(output_file)
+exit(0)
 cog_cntr = RedditCognatesCounter(SYNSET_ORIGIN)
 number_of_synsets = max(cog_cntr.cognates_df['synset'])
 user_data_fields = {'user': [], 'bin': []}

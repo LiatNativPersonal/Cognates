@@ -37,6 +37,7 @@ class RedditUser:
         self.totalCognateCount = 0
         self.totalSynsetUsed = 0
 
+
     
     def set_amount_of_text(self, p_num_of_tokens, p_num_of_sentences):
         self.number_of_tokens = p_num_of_tokens
@@ -70,7 +71,7 @@ class RedditUser:
         if len(words) <= self.sample_size:
             self.text = words
         else:
-            self.text = random.sample(words,self.sample_size)
+            self.text = random.sample(words, self.sample_size)
                 
     def calculate_type_token_ratio(self): 
 #        self.set_user_text_sample()
@@ -78,7 +79,8 @@ class RedditUser:
         self.type_token_ratio = len(set(content_tokens)) / len(content_tokens)
 
     def calculate_lexical_richness_measures(self):
-        self.lexical_richness_measures = self.lexical_richness_calculator.calculate_lexical_richness_measure(text)
+        print(len(self.text))
+        self.lexical_richness_measures = self.lexical_richness_calculator.calculate_lexical_richness_measure(self.text)
 
         
     def calculate_word_rank_measure(self):

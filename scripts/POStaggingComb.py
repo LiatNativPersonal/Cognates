@@ -4,26 +4,36 @@ import csv
 import pickle
 from random import sample
 
+
 SAMPLE_SIZE = 10
 BEGIN_SENTENCE = "<s>"
 END_SENTENCE = "</s>"
 #ROMANCE_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\complete_users_toy"
 ROMANCE_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Romance/Over2000"
 NATIVE_CHUNKS =  r"/data/home/univ/lnativ1/RedditData/Native/Over2000"
+GERMANIC_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Germanic/Over2000"
+GERMANIC_TOEFL = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Germanic\text"
+ROMANCE_TOEFL = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\text"
+TOEFL_ALL = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\tokenized"
 # ROMANCE_POS_TAG_CHUNKS = r"c:\Users\liatn\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\complete_users_POS_TagToy"
 ROMANCE_POS_TAG_CHUNKS = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
 NATIVE_POS_TAG_LEMMAS =  r"/data/home/univ/lnativ1/RedditData/Native/lemmas_pos_over_2000/"
-
+GERMANIC_POS_TAG_LEMMAS =  r"/data/home/univ/lnativ1/RedditData/Germanic/lemmas_pos_over_2000/"
+GERMANIC_TOEFL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Germanic\lemmas_pos"
+ROMANCE_TOEFL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\lemmas_pos"
+TOEFL_ALL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos"
+LOCNESS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\texts"
+LOGNESS_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos"
 
 
 def POS_tag_chunks(nlp, input_dir, combined_output_dir):
     files = os.listdir(input_dir)
 
-    # Tokenize, lemmetaize, POS Tagging and pickling processed text
-    i = 1
+    # Tokenize, lemmetaize, POS Tagging and pickling pro cessed text
+    i = 0
     dir_len = len(files)
     for file in files:
-
+        i += 1
         with open(os.path.join(input_dir, file), 'r', encoding='utf-8') as f:
             outfile = os.path.join(combined_output_dir, file.split(".txt")[0])
             print('processing file: {}, {} of {}'.format(file.split(".txt")[0], i, dir_len))
@@ -80,7 +90,7 @@ def main():
     # for token in doc:
     #     print(token.text, token.pos_)
     # pos_trigram_dict = {}
-    POS_tag_chunks(nlp, NATIVE_CHUNKS, NATIVE_POS_TAG_LEMMAS)
+    POS_tag_chunks(nlp, TOEFL_ALL, TOEFL_ALL_POS_TAG_LEMMA)
     # print('done pos tagging romance users')
     # POS_tag_chunks(nlp, ROMANCE_CHUNKS, ROMANCE_POS_TAG_CHUNKS)
     # create_POS_trigram_dict(ROMANCE_POS_TAG_CHUNKS, pos_trigram_dict)

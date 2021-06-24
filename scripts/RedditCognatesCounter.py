@@ -4,20 +4,22 @@ Created on Fri Oct 12 18:44:45 2018
 
 @author: TAL-LAPTOP
 """
-import nltk
-from nltk.stem import WordNetLemmatizer 
-#from nltk.stem.porter import PorterStemmer
 import pandas as pd
 from collections import Counter
+import pickle
 
 class RedditCognatesCounter:
                 
-    def __init__(self, cognates_list_file, sent_beg = "<beg>", sent_end = " <end>"):
+    def __init__(self, cognates_list_file, sent_beg = "<s>", sent_end = " </s>", _POS = True):
         self.total_syn_set_count = 0
         self.users_cognate_counts_dict = {}
         self.cog_to_syn_set = {}
         self.cognates_df = pd.read_csv(cognates_list_file)
-        self.word_list = self.cognates_df['word'] + "_" + self.cognates_df['POS']
+        self.POS = _POS
+        if self.POS:
+            self.word_list = list(self.cognates_df['word'] + "_" + self.cognates_df['POS'])
+        else:
+            self.word_list = list(self.cognates_df['word'])
         self.user_word_to_count = {}
         self.begin_sentence_marker = sent_beg
         self.end_sentence_marker = sent_end
@@ -27,26 +29,29 @@ class RedditCognatesCounter:
     # this is a nested dictionary of dictionaris maps a user to an additional dictionary that maps 
     # synset to a dictionary that maps cognate to its number of occurences
     def init_user_cognate_count_dict(self):
-        user_cog_df = self.cognates_df[['synset','word','Source','POS']].copy()
+        if self.POS:
+            user_cog_df = self.cognates_df[['synset','word','Source','POS']].copy()
+        else:
+            user_cog_df = self.cognates_df[['synset', 'word', 'Source']].copy()
         user_cog_df['count'] = 0
         return user_cog_df
     
-    def get_total_cognate_count_for_user(self, user, user_text):
-        lemmatizer = WordNetLemmatizer()
-        for line in user_text:  
-             for token in line:               
-                basic_token = lemmatizer.lemmatize(token)   
-                if token in self.cog_to_syn_set.keys() or basic_token in self.cog_to_syn_set.keys():                        
-                    user.totalCognateCount += 1
+    # def get_total_cognate_count_for_user(self, user, user_text):
+    #     # lemmatizer = WordNetLemmatizer()
+    #     for line in user_text:
+    #          for token in line:
+    #             basic_token = lemmatizer.lemmatize(token)
+    #             if token in self.cog_to_syn_set.keys() or basic_token in self.cog_to_syn_set.keys():
+    #                 user.totalCognateCount += 1
             
-    def count_cognate_for_user_line(self,user, tok_line):
-        lemmatizer = WordNetLemmatizer()        
-        for token in tok_line:
-            basic_token = lemmatizer.lemmatize(token) 
-            if token in self.word_list:
-                self.update_user_cognate_counts(token, user)
-            elif basic_token in self.word_list:
-                self.update_user_cognate_counts(basic_token, user)
+    # def count_cognate_for_user_line(self,user, tok_line):
+    #     lemmatizer = WordNetLemmatizer()
+    #     for token in tok_line:
+    #         basic_token = lemmatizer.lemmatize(token)
+    #         if token in self.word_list:
+    #             self.update_user_cognate_counts(token, user)
+    #         elif basic_token in self.word_list:
+    #             self.update_user_cognate_counts(basic_token, user)
             
             
     def update_user_cognate_counts(self, cognate,user):
@@ -57,44 +62,39 @@ class RedditCognatesCounter:
         self.user_word_to_count[user][cognate] += 1
         
         
-    def count_cognates_for_user(self, user):
+    def count_cognates_for_user(self, user, pickled = False):
 
-        lemmatizer = WordNetLemmatizer()  
+        # lemmatizer = WordNetLemmatizer()
         if user not in self.users_cognate_counts_dict.keys():
             self.users_cognate_counts_dict[user] = self.init_user_cognate_count_dict()
-            # user_df = self.users_cognate_counts_dict[user]
-        with open(user.text_file, "r", encoding="utf-8") as input_file:
-            text = [x.replace(self.begin_sentence_marker,'').replace(self.end_sentence_marker,'') for x in input_file.read().split("\n")]
-            no_POS= []
-            for row in text:
-                no_POS.append(" ".join([word_pos.split("_")[0] for word_pos in row.split(" ")]))
-            tok_rows = [nltk.word_tokenize(row) for row in no_POS]
-            tok_words = [word.lower() for row in tok_rows for word in row]           
-            lemmatized_words = [(lemmatizer.lemmatize(word)).lower() for word in tok_words]     
-            diff = list((Counter(tok_words) - Counter(lemmatized_words)).elements())
-            full = lemmatized_words + diff
-            cnt = Counter(full)
-            self.user_word_to_count[user] = {key:cnt[key] for key in cnt if key in self.word_list}
-            extra = {x:0 for x in self.word_list if x not in self.user_word_to_count[user].keys()}
-            self.user_word_to_count[user].update(extra)
-            for word in self.word_list:
-                user_df = self.users_cognate_counts_dict[user]
-                # print(word)
-                # print(self.user_word_to_count[user][word])
-                count = self.user_word_to_count[user][word]
-                user_df.loc[(user_df.word == word),'count'] = count
-                # if count > 0:
-                #     print(word)
-                #     print(user_df[user_df['word'] == word])
+        if pickled:
+            fh = open(user.text_file, 'rb')
+        else:
+            fh = open(user.text_file, 'r', encoding='utf-8')
+        raw_text = []
+        if pickled:
+            raw_text = pickle.load(fh)
+            # print(raw_text[0:10])
+        else:
+            raw_text = fh.read().split("\n")
+        text = [x.replace(self.begin_sentence_marker,'').replace(self.end_sentence_marker,'') for x in raw_text]
+        words = [word for row in text for word in row.split(" ")]
+        cnt = Counter(words)
 
+        self.user_word_to_count[user] = {key:cnt[key] for key in cnt if key in self.word_list}
+        extra = {x:0 for x in self.word_list if x not in self.user_word_to_count[user].keys()}
+        self.user_word_to_count[user].update(extra)
+        for word in self.word_list:
+            if self.POS:
+                lemma, pos = word.split("_")
 
-
-
-
-
-    
-                
-    
+            user_df = self.users_cognate_counts_dict[user]
+            count = self.user_word_to_count[user][word]
+            if self.POS:
+                user_df.loc[(user_df['word'] == lemma) & (user_df['POS'] == pos), 'count'] = count
+            else:
+                user_df.loc[(user_df['word'] == word), 'count'] = count
+        fh.close()
     
     def write_cognates_vector_to_file(self, output_file_path, min_amount_of_tokens, min_amount_of_cognates ):
         with open(output_file_path, "w", encoding="utf-8") as output:
