@@ -23,7 +23,13 @@ GERMANIC_TOEFL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cogn
 ROMANCE_TOEFL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\lemmas_pos"
 TOEFL_ALL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos"
 LOCNESS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\texts"
-LOGNESS_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos"
+LOCNESS_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos"
+ICLE_ALL = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\texts"
+ICLE_GERMANIC = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\texts\Germanic"
+ICLE_ALL_ROMANCE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\texts\Romance"
+ICLE_ALL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos"
+ICLE_ALL_POS_TAG_LEMMA_GERMANIC = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Germanic"
+ICLE_ALL_POS_TAG_LEMMA_ROMANCE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Romance"
 
 
 def POS_tag_chunks(nlp, input_dir, combined_output_dir):
@@ -33,6 +39,8 @@ def POS_tag_chunks(nlp, input_dir, combined_output_dir):
     i = 0
     dir_len = len(files)
     for file in files:
+        if not ".txt" in file:
+            continue
         i += 1
         with open(os.path.join(input_dir, file), 'r', encoding='utf-8') as f:
             outfile = os.path.join(combined_output_dir, file.split(".txt")[0])
@@ -90,7 +98,7 @@ def main():
     # for token in doc:
     #     print(token.text, token.pos_)
     # pos_trigram_dict = {}
-    POS_tag_chunks(nlp, TOEFL_ALL, TOEFL_ALL_POS_TAG_LEMMA)
+    POS_tag_chunks(nlp, ICLE_ALL, ICLE_ALL_POS_TAG_LEMMA)
     # print('done pos tagging romance users')
     # POS_tag_chunks(nlp, ROMANCE_CHUNKS, ROMANCE_POS_TAG_CHUNKS)
     # create_POS_trigram_dict(ROMANCE_POS_TAG_CHUNKS, pos_trigram_dict)

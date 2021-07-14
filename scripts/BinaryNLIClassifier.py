@@ -5,8 +5,8 @@ Created on Thu Jul 23 11:10:22 2020
 @author: liatn
 """
 
-
-from sklearn.model_selection import cross_val_score, GridSearchCV, train_test_split, cross_validate, StratifiedKFold, KFold, StratifiedShuffleSplit, ShuffleSplit
+from sklearn.model_selection import cross_val_score, GridSearchCV, train_test_split, cross_validate, StratifiedKFold, \
+    KFold, StratifiedShuffleSplit, ShuffleSplit
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, TfidfTransformer
 import pandas as pd
@@ -32,6 +32,7 @@ import shutil
 # from lexicalrichness import LexicalRichness
 import os
 import pickle
+
 # from nltk.corpus import words
 # import stanza
 REDDIT_GERMANIC_DATASET = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Germanic/NoBound/"
@@ -39,7 +40,6 @@ REDDIT_GERMANIC_DATASET = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/
 REDDIT_ROMANCE_DATASET = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Romance\over2000"
 REDDIT_NATIVE_DATASET = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Native\over2000"
 REDDIT_GERMANIC_DATASET = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\RedditData\Germanic\over2000"
-
 
 REDDIT_GERMANIC_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Germanic/shuffeldChunksOver2000/"
 REDDIT_ROMANCE_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates/RedditData/Romance/complete_users_toy/"
@@ -52,7 +52,6 @@ REDDIT_NATIVE_POS_CHUNKS = "c:/Users/liatn/Documents/Liat/Research/Repo/Cognates
 REDDIT_NATIVE_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Native/lemmas_pos_over_2000/"
 REDDIT_ROMANCE_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
 REDDIT_GERMANIC_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Germanic/lemmas_pos_over_2000/"
-
 
 FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\function-words.csv"
 POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\TOEFEL_LOCNESS_POS_trigrams.txt"
@@ -68,7 +67,6 @@ LOCNESS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\tex
 
 LOCNESS_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos"
 TOEFL_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos"
-
 
 TOEFL_SHUFFELED_CHUNKS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\shuff_grade_aggr"
 TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\shuff_grade_aggr\balanced"
@@ -86,13 +84,13 @@ SPLITS = 10
 
 
 class BinaryNLIClassifier:
-    
-    def __init__(self):
-        # self.classifier = LogisticRegression(penalty='l2', dual=True, solver='liblinear',warm_start=True, C=10.0 )
 
-        self.classifier = svm.SVC()
+    def __init__(self):
+        self.classifier = LogisticRegression(penalty='l2', dual=True, solver='liblinear', warm_start=True, C=10.0)
+
+        # self.classifier = svm.SVC()
         self.function_words_file = FUNCTION_WORDS
-        self.function_words_list =[]
+        self.function_words_list = []
         self.non_natives = []
         self.natives = []
         self.non_natives_user_to_distance_from_border_line = {}
@@ -102,30 +100,27 @@ class BinaryNLIClassifier:
         # self.createFeatureVectors()
         # self.splitDataAndClassify()
 
-
-
     def create_pos_trigram_list(self):
         pos_tri = {}
         with open(POS_TRIGRAMS_FILE, 'r', encoding='utf-8') as POS_tri:
             for tri in POS_tri:
                 tri_freq = tri.split(",")
                 pos_tri[tri_freq[0]] = tri_freq[1]
-            # self.POS_trigrams_list = [tri.split(",")[0].strip() for tri in POS_tri]
-            # self.POS_trigrams_list = [tri.strip() for tri in POS_tri]
-        self.POS_trigrams_list = pos_tri.keys()
-        print(self.POS_trigrams_list)
+        self.POS_trigrams_list = list(pos_tri.keys())
+
     def createFunctionWordList(self):
         with open(self.function_words_file, 'r') as func_words:
-           self.function_words_list = [word.strip() for word in func_words]
+            self.function_words_list = [word.strip() for word in func_words]
         # print(self.function_words_list)
 
     def Tokenize(text):
         return text.split(' ')
 
-    def createFeatureVectorsLazy(self, INPUT_DIR, label, chunks_record, flat_list = False):
+    def createFeatureVectorsLazy(self, INPUT_DIR, label, chunks_record, flat_list=False):
+        print("in createFeatureVectorsLazy")
         function_words_vectorizer = CountVectorizer(token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",
                                                     vocabulary=self.function_words_list)
-        POS_vectorizer = CountVectorizer(ngram_range=(3,3), vocabulary=self.POS_trigrams_list, stop_words=None,
+        POS_vectorizer = CountVectorizer(ngram_range=(3, 3), vocabulary=self.POS_trigrams_list, stop_words=None,
                                          tokenizer=BinaryNLIClassifier.Tokenize, lowercase=False)
         function_word_feature_vector = []
         POS_feature_vector = []
@@ -134,9 +129,12 @@ class BinaryNLIClassifier:
                 text = pickle.load(fh)
                 if flat_list:
                     text = [item for sublist in text for item in sublist]
+                # print(text)
+
                 shuffle(text)
                 text = [s.split(BEGIN_SENTENCE)[1] for s in text]
                 text = [s.split(END_SENTENCE)[0] for s in text]
+                # print(text)
                 chunk = 0
                 token_counter = 0
                 lemmas = {}
@@ -161,7 +159,6 @@ class BinaryNLIClassifier:
                         pos_seq = ""
                         lemmas_seq = ""
 
-
                     token_counter += len(sentence.split(" "))
                     pos_seq += BEGIN_SENTENCE + " "
                     for token in sentence.split(" "):
@@ -176,11 +173,6 @@ class BinaryNLIClassifier:
                     pos_seq += END_SENTENCE + ' '
 
 
-                #last chunk may be smaller than defined size, if so - ignore it
-                # if token_counter < CHUNK_SIZE:
-                #     pos.pop(chunk)
-                #     lemmas.pop(chunk)
-
             for index in range(chunk):
                 if len(lemmas[index]) == 0:
                     continue
@@ -193,11 +185,12 @@ class BinaryNLIClassifier:
                 # print(function_word_feature_vector[index])
                 # print(len(function_word_feature_vector))
 
-        print(chunk)
+            # break
+        print("chunk = {}".format(chunk))
         result_func_words = vstack(function_word_feature_vector)
         result_POS_trigrams = vstack(POS_feature_vector)
-        # final_feature_vecotr_structure = hstack([result_func_words, result_POS_trigrams], format='csr')
-        final_feature_vecotr_structure = result_POS_trigrams
+        final_feature_vecotr_structure = hstack([result_func_words, result_POS_trigrams], format='csr')
+        # final_feature_vecotr_structure = result_POS_trigrams
         # final_feature_vecotr_structure = result_func_words
         tf_idf_transformer = TfidfTransformer()
         tf_idf_transformer.fit(final_feature_vecotr_structure)
@@ -205,13 +198,12 @@ class BinaryNLIClassifier:
         labels = [label] * final_feature_vecotr_structure.shape[0]
         return final_feature_vecotr_structure, labels
 
-
     def balanceClassWithSMOTE(self):
         oversample = SMOTE()
         self.X, self.y = oversample.fit_resample(self.X, self.y)
-               
+
     def createFeatureVectors(self, native_source_dir, native_pos_dir, non_native_source_dir, non_native_pos_dir):
-        contents = self.non_natives+self.natives
+        contents = self.non_natives + self.natives
 
         function_word_dataset = [os.path.join(non_native_source_dir, f) for f in self.non_natives]
         function_word_dataset.extend([os.path.join(native_source_dir, f) for f in self.natives])
@@ -220,7 +212,9 @@ class BinaryNLIClassifier:
         print(len(function_word_dataset))
         print(len(pos_trigrams_dataset))
         # print(len(contents))
-        function_word_vectorizer = TfidfVectorizer(input='filename',token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",vocabulary=self.function_words_list)
+        function_word_vectorizer = TfidfVectorizer(input='filename',
+                                                   token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",
+                                                   vocabulary=self.function_words_list)
         pos_tri_vectorizer = TfidfVectorizer(input='filename', ngram_range=(3, 3))
 
         function_word_X = function_word_vectorizer.fit_transform(function_word_dataset)
@@ -234,15 +228,12 @@ class BinaryNLIClassifier:
         self.y = [NON_NATIVE] * len(self.non_natives) + [NATIVE] * len(self.natives)
         self.balanceClassWithSMOTE()
 
-        
     def createFunctionWordFeatureVectors(self, contents, labels):
         function_word_vectorizer = TfidfVectorizer(input='filename',
                                                    token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",
                                                    vocabulary=self.function_words_list)
         self.X = function_word_vectorizer.fit_transform(contents)
         self.y = labels
-
-
 
     def splitDataAndClassify(self, external_test=[]):
         # # X_train, X_test, y_train, y_test = train_test_split(self.X, self.Y, test_size=0.1, random_state=0)
@@ -279,13 +270,13 @@ class BinaryNLIClassifier:
         fold = 0
         sss = StratifiedShuffleSplit(n_splits=SPLITS, test_size=0.1, random_state=0)
         for train_index, test_index in sss.split(self.X, self.y):
-        # for train_index, test_index in kfold.split(self.X, self.y):
+            # for train_index, test_index in kfold.split(self.X, self.y):
             X_train, X_test = self.X[train_index], self.X[test_index]
             y_train, y_test = self.y[train_index], self.y[test_index]
-            clf = self.classifier.fit(X_train,y_train)
+            clf = self.classifier.fit(X_train, y_train)
             print("accuracy: = {}".format(clf.score(X_test, y_test)))
             y_pred = self.classifier.predict(X_test)
-            print("f1 = {}".format(f1_score(y_test,y_pred,average='micro')))
+            print("f1 = {}".format(f1_score(y_test, y_pred, average='micro')))
 
             i = 0
             self.non_natives_user_to_distance_from_border_line[fold] = {}
@@ -311,7 +302,6 @@ class BinaryNLIClassifier:
                 self.natives_user_to_distance_from_border_line[fold][self.natives[i]].append(
                     [self.classifier.predict(fv)])
             fold += 1
-
 
             # chunks_to_dist = {}
             # if len(external_test) > 0:
@@ -355,27 +345,20 @@ class BinaryNLIClassifier:
             #             i = 0
             #             distances = []
             #         counter +=1
-                    
-                     
 
-            
+        # with open('TOEFL_non_natives_distances.csv','w+',encoding='utf-8') as nndist:
+        #      nndist.write("user,distance\n")
+        #      for key,value in self.non_natives_user_to_distance_from_border_line.items():
+        #          user = (key.split("BinClsf/",1)[1])
+        #          nndist.write("{},{}\n".format(user,value))
+
+        # with open('TOEFL_natives_distances.csv','w+',encoding='utf-8') as nativedist:
+        #      nativedist.write("user,distance\n")
+        #      for key,value in self.natives_user_to_distance_from_border_line.items():
+        #          # user = (key.split("Balanced/",1)[1]).split(".",1)[0]
+        #          nativedist.write("{},{}\n".format(key,value))
 
 
-                  
-             
-         # with open('TOEFL_non_natives_distances.csv','w+',encoding='utf-8') as nndist:
-         #      nndist.write("user,distance\n")
-         #      for key,value in self.non_natives_user_to_distance_from_border_line.items():
-         #          user = (key.split("BinClsf/",1)[1])
-         #          nndist.write("{},{}\n".format(user,value))
-                 
-         # with open('TOEFL_natives_distances.csv','w+',encoding='utf-8') as nativedist:
-         #      nativedist.write("user,distance\n")
-         #      for key,value in self.natives_user_to_distance_from_border_line.items():
-         #          # user = (key.split("Balanced/",1)[1]).split(".",1)[0]
-         #          nativedist.write("{},{}\n".format(key,value))
-       
-                
 def calc_num_of_words_and_sentences(text, nlp):
     word_count = 0
     sent_count = 0
@@ -385,37 +368,38 @@ def calc_num_of_words_and_sentences(text, nlp):
         if len(line) > 0:
             doc = nlp(line)
             sent_count += 1
-            word_count += len(line.split(" ")) 
+            word_count += len(line.split(" "))
             for sentence in doc.sentences:
                 for word in sentence.words:
                     if word.lemma not in types:
                         types.append(word.lemma)
     return word_count, sent_count, len(types)
 
+
 def load_TOEFL_LOCNESS():
-    
     TOEFL_df = pd.read_csv(TOEFL_INDEX)
-    
+
     natives = [f for f in os.listdir(LOCNESS_PATH) if f.endswith('.txt')]
     natives_num = len(natives)
     non_natives_df = pd.DataFrame()
-    print(natives_num)  
-    
+    print(natives_num)
+
     grades = TOEFL_df.Grade.unique()
-    sample_size = int(natives_num/len(grades))
-    grade_to_size = dict(zip(grades, [sample_size,sample_size+1,sample_size]))  
+    sample_size = int(natives_num / len(grades))
+    grade_to_size = dict(zip(grades, [sample_size, sample_size + 1, sample_size]))
     print(grade_to_size)
     print(grades)
-    
+
     print(sample_size)
-    for grade,size in grade_to_size.items():
-        x = (TOEFL_df.loc[((TOEFL_df['L1']=='FRA') | (TOEFL_df['L1']=='SPA') | (TOEFL_df['L1']=='ITA')) & (TOEFL_df['Grade']==grade)]).sample(n=size)
+    for grade, size in grade_to_size.items():
+        x = (TOEFL_df.loc[((TOEFL_df['L1'] == 'FRA') | (TOEFL_df['L1'] == 'SPA') | (TOEFL_df['L1'] == 'ITA')) & (
+                    TOEFL_df['Grade'] == grade)]).sample(n=size)
         print(len(x))
         non_natives_df = non_natives_df.append(x)
         print(len(non_natives_df))
-        
-        
-    return natives,non_natives_df
+
+    return natives, non_natives_df
+
 
 def Main():
     # TOEFL_df = pd.read_csv(TOEFL_INDEX)
@@ -428,34 +412,31 @@ def Main():
     # for f in highs:
     #     f= os.path.join(TOEFL_ESSEYS,f)
     #     with open(f, 'r') as hf:
-            
+
     #         (lens['high']).append(len(hf.read().split(' ')))
-   
+
     # meds = (TOEFL_df.loc[(TOEFL_df['Score Level']=='medium')])['Filename']
     # for f in meds:
     #     f= os.path.join(TOEFL_ESSEYS,f)
     #     with open(f, 'r') as hf:
     #         lens['med'].append(len(hf.read().split(' ')))
-            
+
     # lows = (TOEFL_df.loc[(TOEFL_df['Score Level']=='low')])['Filename']
     # for f in lows:
     #     f= os.path.join(TOEFL_ESSEYS,f)
     #     with open(f, 'r') as hf:
     #         lens['low'].append(len(hf.read().split(' ')))
-    
-    
+
     # with open('lens.csv','w',encoding='utf-8') as len_file:
     #     len_file.write("level, length\n")
     #     for lvl,lens in lens.items():            
     #         for l in lens:
     #             len_file.write("{},{}\n".format(lvl,l))
-    
+
     # # print(highs)
     # return
-   
 
-
-   #### REDDIT POS_LEMMAS LAZY FV CONSTRUCTION
+    #### REDDIT POS_LEMMAS LAZY FV CONSTRUCTION
 
     # binNLI_clf = BinaryNLIClassifier()
     #
@@ -504,9 +485,7 @@ def Main():
     #     df.to_csv(filename)
     #
     # return
-    
-    
-    
+
     # #### Reddit
     # binNLI_clf = BinaryNLIClassifier()
     #
@@ -632,18 +611,26 @@ def Main():
 
     X_non_native = []
     y_non_native = []
-    natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
-    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, True)
+
     for lvl in levels:
-        lvl_dir = os.path.join(TOEFL_LEMMAS_POS, os.path.join(lvl,'unified'))
-        X_non_native_curr_lvl, y_non_native_curr_lvl = binNLI_clf.createFeatureVectorsLazy(lvl_dir,NON_NATIVE, binNLI_clf.non_natives, True)
+        print("level = {}".format(lvl))
+        lvl_dir = os.path.join(TOEFL_LEMMAS_POS, os.path.join('unified',lvl))
+        # lvl_dir = os.path.join(TOEFL_LEMMAS_POS, lvl)
+        print(lvl_dir)
+        X_non_native_curr_lvl, y_non_native_curr_lvl = binNLI_clf.createFeatureVectorsLazy(lvl_dir, NON_NATIVE,
+                                                                                           binNLI_clf.non_natives,
+                                                                                           True)
         X_non_native.append(X_non_native_curr_lvl)
         y_non_native.append(y_non_native_curr_lvl)
     # print(non_natives['high'])
     y_non_native = [item for sublist in y_non_native for item in sublist]
+
+    natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
+    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, True)
     X_non_native_fv = vstack(X_non_native)
-    binNLI_clf.X = vstack((X_nativ, X_non_native_fv))
-    binNLI_clf.y = np.array(y_native + y_non_native)
+
+    binNLI_clf.X = vstack((X_non_native_fv, X_nativ,))
+    binNLI_clf.y = np.array(y_non_native + y_native)
     print(binNLI_clf.X.shape)
     print(binNLI_clf.y.shape)
     binNLI_clf.balanceClassWithSMOTE()
@@ -653,75 +640,96 @@ def Main():
     external_test = []
     binNLI_clf.splitDataAndClassify(external_test)
 
-
     for fold in range(SPLITS):
         non_natives = {}
         for key, val in binNLI_clf.non_natives_user_to_distance_from_border_line[fold].items():
-
             non_natives[key] = val[0][0][0]
-    #         if val[1][0] != NON_NATIVE:
-    #             true_non_natives[key] = val[0][0][0]
-    #         else:
-    #             false_natives[key] = val[0][0][0]
-    #
-    #     bins = NUMBER_OF_BINS - 1 - pd.qcut(np.array(list(true_non_natives.values())), NUMBER_OF_BINS, labels=False)
-    #
+        #         if val[1][0] != NON_NATIVE:
+        #             true_non_natives[key] = val[0][0][0]
+        #         else:
+        #             false_natives[key] = val[0][0][0]
+        #
+        #     bins = NUMBER_OF_BINS - 1 - pd.qcut(np.array(list(true_non_natives.values())), NUMBER_OF_BINS, labels=False)
+        #
         data = {'User': list(non_natives.keys()),
                 'Distance': list(non_natives.values()),
-                 'grade': [x.split('_')[0] for x in non_natives.keys()]}
-    #
+                'grade': [x.split('_')[0] for x in non_natives.keys()]}
+        #
         df = pd.DataFrame(data)
         print('writing csv')
-        filename = "fold_{}_TOEFL_vs_LOCNESS.csv".format(fold)
-        print(stats.ranksums(list(df.loc[df['grade'] == 'low','Distance']),
-                             list(df.loc[df['grade'] == 'high','Distance'])))
-        print(stats.ranksums(list(df.loc[df['grade'] == 'low', 'Distance']),
-                             list(df.loc[df['grade'] == 'medium', 'Distance'])))
-        print(stats.ranksums(list(df.loc[df['grade'] == 'medium', 'Distance']),
-                             list(df.loc[df['grade'] == 'high', 'Distance'])))
+        print(stats.kruskal(list(df.loc[df['grade'] == 'low', 'Distance']),
+                            list(df.loc[df['grade'] == 'medium', 'Distance']),
+                            list(df.loc[df['grade'] == 'high', 'Distance'])))
+        # stat, p  = stats.normaltest(list(df['Distance']))
+        # alpha = 0.05
+        # if p > alpha:
+        #
+        #     print('Sample looks Gaussian (fail to reject H0)')
+        #     print(stats.f_oneway(list(df.loc[df['grade'] == 'low', 'Distance']),
+        #                          list(df.loc[df['grade'] == 'medium', 'Distance']),
+        #                          list(df.loc[df['grade'] == 'high', 'Distance'])))
+        # else:
+        #     print("p value = {}".format(p))
+        #     print('Sample does not look Gaussian (reject H0)')
+        filename = "Log_reg_fold_{}_TOEFL_vs_LOCNESS.csv".format(fold)
+        # print(stats.f_oneway(list(df.loc[df['grade'] == 'low','Distance']),
+        #                      list(df.loc[df['grade'] == 'medium','Distance']),
+        #                      list(df.loc[df['grade'] == 'high', 'Distance'])))
+        # print(stats.f_oneway(list(df.loc[df['grade'] == 'low', 'Distance']),
+        #                      )))
+        # print(stats.f_oneway(list(df.loc[df['grade'] == 'medium', 'Distance']),
+        #                      list(df.loc[df['grade'] == 'high', 'Distance'])))
         df.to_csv(filename)
 
     return
-    lows = sample([os.path.join(TOEFL_LEMMAS_POS, f.split(".txt")[0]) for f in os.listdir(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH) if "low" in f],int(len(binNLI_clf.natives)/3))
-    meds = sample([os.path.join(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH, f) for f in os.listdir(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH) if "medium" in f],int((len(binNLI_clf.natives)/3)) + 1)
-    highs = sample([os.path.join(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH, f) for f in os.listdir(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH) if "high" in f],int(len(binNLI_clf.natives)/3))
-    print("lows: {} , meds: {}, highs: {}".format(len(lows),len(meds),len(highs)))
+    lows = sample(
+        [os.path.join(TOEFL_LEMMAS_POS, f.split(".txt")[0]) for f in os.listdir(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH) if
+         "low" in f], int(len(binNLI_clf.natives) / 3))
+    meds = sample(
+        [os.path.join(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH, f) for f in os.listdir(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH)
+         if "medium" in f], int((len(binNLI_clf.natives) / 3)) + 1)
+    highs = sample(
+        [os.path.join(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH, f) for f in os.listdir(TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH)
+         if "high" in f], int(len(binNLI_clf.natives) / 3))
+    print("lows: {} , meds: {}, highs: {}".format(len(lows), len(meds), len(highs)))
 
     binNLI_clf.non_natives = lows + meds + highs
-    print("non_natives: {}, natives: {}".format(len(binNLI_clf.non_natives),len(binNLI_clf.natives)))
+    print("non_natives: {}, natives: {}".format(len(binNLI_clf.non_natives), len(binNLI_clf.natives)))
     external_test = []
+
+
 # #
-    #     # first = [TOEFL_SHUFFELED_CHUNKS_PATH + f for f in os.listdir(TOEFL_SHUFFELED_CHUNKS_PATH) if "high" in f]
-    #     # second =  [TOEFL_SHUFFELED_CHUNKS_PATH + f for f in os.listdir(TOEFL_SHUFFELED_CHUNKS_PATH) if "medium" in f]
-    #     # second = sample(second,len(first))
-    #     # binNLI_clf.non_natives = first
-    #     # binNLI_clf.natives = second
-    #     # external_test = [TOEFL_SHUFFELED_CHUNKS_PATH + f for f in os.listdir(TOEFL_SHUFFELED_CHUNKS_PATH) if "low" in f]
-          # labels = [NON_NATIVE] * len(sbinNLI_clfelf.non_natives) + [NATIVE] * len(binNLI_clf.natives)
-    #     binNLI_clf.createFunctionWordFeatureVectors(binNLI_clf.non_natives + binNLI_clf.natives, labels)
-    #     binNLI_clf.splitDataAndClassify(external_test)
-    #
-    #     # with open('TOEFL_non_natives_distances.csv','w+',encoding='utf-8') as nndist:
-    #     #          nndist.write("user,distance,grade\n")
-    #     #          for key,value in binNLI_clf.non_natives_user_to_distance_from_border_line.items():
-    #     #              user = (key.split("shuff_grade_aggr/",1)[1])
-    #     #              print(user)
-    #     #              user_grade = (non_natives_df.loc[non_natives_df['Filename']==user])['Score Level'].values[0]
-    #     #              # print(user_grade)
-    #     #              nndist.write("{},{},{}\n".format(user,value[0],user_grade))
-    # #
-    #     with open(str(i) + 'SVM_TOEFL_level_1000_words_chunks_distances.csv','w+',encoding='utf-8') as chunks_dist:
-    #         chunks_dist.write("file,grade,distance,ttr\n")
-    #         for key,value in binNLI_clf.non_natives_user_to_distance_from_border_line.items():
-    #             chunk = (key.split("balanced",1)[1])[1:]
-    #             ttr = 0.0
-    #             with open(key,'r',encoding='utf-8') as text_file:
-    #                 content = text_file.read().split(" ")
-    #                 ttr = len(content) / len(set(content))
-    #
-    #             grade = chunk.split("_",1)[0]
-    #             chunks_dist.write("{},{},{},{}\n".format(chunk,grade,value[0][0],ttr))
-    #
+#     # first = [TOEFL_SHUFFELED_CHUNKS_PATH + f for f in os.listdir(TOEFL_SHUFFELED_CHUNKS_PATH) if "high" in f]
+#     # second =  [TOEFL_SHUFFELED_CHUNKS_PATH + f for f in os.listdir(TOEFL_SHUFFELED_CHUNKS_PATH) if "medium" in f]
+#     # second = sample(second,len(first))
+#     # binNLI_clf.non_natives = first
+#     # binNLI_clf.natives = second
+#     # external_test = [TOEFL_SHUFFELED_CHUNKS_PATH + f for f in os.listdir(TOEFL_SHUFFELED_CHUNKS_PATH) if "low" in f]
+# labels = [NON_NATIVE] * len(sbinNLI_clfelf.non_natives) + [NATIVE] * len(binNLI_clf.natives)
+#     binNLI_clf.createFunctionWordFeatureVectors(binNLI_clf.non_natives + binNLI_clf.natives, labels)
+#     binNLI_clf.splitDataAndClassify(external_test)
+#
+#     # with open('TOEFL_non_natives_distances.csv','w+',encoding='utf-8') as nndist:
+#     #          nndist.write("user,distance,grade\n")
+#     #          for key,value in binNLI_clf.non_natives_user_to_distance_from_border_line.items():
+#     #              user = (key.split("shuff_grade_aggr/",1)[1])
+#     #              print(user)
+#     #              user_grade = (non_natives_df.loc[non_natives_df['Filename']==user])['Score Level'].values[0]
+#     #              # print(user_grade)
+#     #              nndist.write("{},{},{}\n".format(user,value[0],user_grade))
+# #
+#     with open(str(i) + 'SVM_TOEFL_level_1000_words_chunks_distances.csv','w+',encoding='utf-8') as chunks_dist:
+#         chunks_dist.write("file,grade,distance,ttr\n")
+#         for key,value in binNLI_clf.non_natives_user_to_distance_from_border_line.items():
+#             chunk = (key.split("balanced",1)[1])[1:]
+#             ttr = 0.0
+#             with open(key,'r',encoding='utf-8') as text_file:
+#                 content = text_file.read().split(" ")
+#                 ttr = len(content) / len(set(content))
+#
+#             grade = chunk.split("_",1)[0]
+#             chunks_dist.write("{},{},{},{}\n".format(chunk,grade,value[0][0],ttr))
+#
 
 
 if __name__ == '__main__':
