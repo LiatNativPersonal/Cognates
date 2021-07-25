@@ -54,7 +54,8 @@ REDDIT_ROMANCE_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_
 REDDIT_GERMANIC_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Germanic/lemmas_pos_over_2000/"
 
 FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\function-words.csv"
-POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\TOEFEL_LOCNESS_POS_trigrams.txt"
+# POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\TOEFEL_LOCNESS_POS_trigrams.txt"
+POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE_LOCNESS_POS_trigrams.txt"
 
 # FUNCTION_WORDS = r"/data/home/univ/lnativ1/RedditData/function-words.csv"
 # POS_TRIGRAMS_FILE = r"/data/home/univ/lnativ1/RedditData/ROM_POS_trigrams.txt"
@@ -67,10 +68,15 @@ LOCNESS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\tex
 
 LOCNESS_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos"
 TOEFL_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos"
+TOEFL_ROMANCE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\lemmas_pos"
+TOEFL_FRA_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\FRA"
+TOEFL_ITA_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\ITA"
+TOEFL_GERMANIC_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Germanic\lemmas_pos"
+ICLE_ROMANCE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Romance"
+ICLE_GERMANIC_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Germanic"
 
-TOEFL_SHUFFELED_CHUNKS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\shuff_grade_aggr"
-TOEFL_BALANCED_SHUFFELED_CHUNKS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\shuff_grade_aggr\balanced"
-LOCNESS_SHUFFELED_CHUNKS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\shuff"
+TOEFL_DEBUG = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\debug'
+
 CHUNK_SIZE = 1000
 NUMBER_OF_BINS = 5
 BEGIN_SENTENCE = "<s>"
@@ -116,7 +122,7 @@ class BinaryNLIClassifier:
     def Tokenize(text):
         return text.split(' ')
 
-    def createFeatureVectorsLazy(self, INPUT_DIR, label, chunks_record, flat_list=False):
+    def createFeatureVectorsLazy(self, input_dir, label, chunks_record, flat_list=False, chunks=True):
         print("in createFeatureVectorsLazy")
         function_words_vectorizer = CountVectorizer(token_pattern=r"[a-z]*'[a-z]*|(?u)\b\w\w+\b|...|.|!|\?|\"|\'",
                                                     vocabulary=self.function_words_list)
@@ -124,68 +130,73 @@ class BinaryNLIClassifier:
                                          tokenizer=BinaryNLIClassifier.Tokenize, lowercase=False)
         function_word_feature_vector = []
         POS_feature_vector = []
-        for f in os.listdir(INPUT_DIR):
-            with open(os.path.join(INPUT_DIR, f), 'rb') as fh:
+        text = []
+        for f in os.listdir(input_dir):
+            with open(os.path.join(input_dir, f), 'rb') as fh:
+                # text.append(pickle.load(fh))
                 text = pickle.load(fh)
                 if flat_list:
                     text = [item for sublist in text for item in sublist]
-                # print(text)
-
-                shuffle(text)
-                text = [s.split(BEGIN_SENTENCE)[1] for s in text]
-                text = [s.split(END_SENTENCE)[0] for s in text]
-                # print(text)
-                chunk = 0
-                token_counter = 0
-                lemmas = {}
-                pos = {}
-                lemmas[chunk] = []
+        # text = [item for sublist in text for item in sublist]
+        shuffle(text)
+        text = [s.split(BEGIN_SENTENCE)[1] for s in text]
+        text = [s.split(END_SENTENCE)[0] for s in text]
+        chunk = 0
+        token_counter = 0
+        lemmas = {}
+        pos = {}
+        lemmas[chunk] = []
+        pos[chunk] = []
+        pos_seq = ""
+        lemmas_seq = ""
+        for sentence in text:
+            sentence = sentence.strip()
+            if len(sentence) > 0 and chunks and token_counter >= CHUNK_SIZE:
+                lemmas[chunk].append(lemmas_seq)
+                pos[chunk].append(pos_seq)
+                chunks_record.append("{}_{}".format(f, chunk))
+                chunk += 1
                 pos[chunk] = []
+                lemmas[chunk] = []
+                token_counter = 0
                 pos_seq = ""
                 lemmas_seq = ""
-                for sentence in text:
-                    sentence = sentence.strip()
-                    if len(sentence) == 0:
-                        continue
-                    if token_counter >= CHUNK_SIZE:
-                        # print(token_counter)
-                        lemmas[chunk].append(lemmas_seq)
-                        pos[chunk].append(pos_seq)
-                        chunks_record.append("{}_{}".format(f, chunk))
-                        chunk += 1
-                        pos[chunk] = []
-                        lemmas[chunk] = []
-                        token_counter = 0
-                        pos_seq = ""
-                        lemmas_seq = ""
 
-                    token_counter += len(sentence.split(" "))
-                    pos_seq += BEGIN_SENTENCE + " "
-                    for token in sentence.split(" "):
-                        try:
-                            lemma_pos = token.split(SEPERATOR)
-                            lemmas_seq += lemma_pos[0] + " "
-                            pos_seq += lemma_pos[1] + " "
-                            lemmas_seq += ' '
+            token_counter += len(sentence.split(" "))
+            pos_seq += BEGIN_SENTENCE + " "
+            for token in sentence.split(" "):
+                try:
+                    lemma_pos = token.split(SEPERATOR)
+                    lemmas_seq += lemma_pos[0] + " "
+                    pos_seq += lemma_pos[1] + " "
+                    lemmas_seq += ' '
 
-                        except:
-                            continue
-                    pos_seq += END_SENTENCE + ' '
-
-
-            for index in range(chunk):
-                if len(lemmas[index]) == 0:
+                except:
                     continue
-                # print(index)
-                function_word_feature_vector.append(function_words_vectorizer.fit_transform(lemmas[index]))
-                POS_feature_vector.append(POS_vectorizer.fit_transform(pos[index]))
-                # print(pos[index])
-                # print(POS_feature_vector[index])
-                # print(lemmas[index])
-                # print(function_word_feature_vector[index])
-                # print(len(function_word_feature_vector))
+            pos_seq += END_SENTENCE + ' '
 
-            # break
+        if not chunks:
+            lemmas[chunk].append(lemmas_seq)
+            pos[chunk].append(pos_seq)
+            chunks_record.append("{}_{}".format(f, chunk))
+            chunk += 1
+
+        for index in range(chunk):
+            if len(lemmas[index]) == 0:
+                continue
+            # print(index)
+            function_word_feature_vector.append(function_words_vectorizer.fit_transform(lemmas[index]))
+            POS_feature_vector.append(POS_vectorizer.fit_transform(pos[index]))
+            # with open(os.path.join(TOEFL_DEBUG, "{}_{}".format(f, index)), 'w', encoding='utf-8') as chunk_out:
+            #     for sent in lemmas[index]:
+            #         chunk_out.write(sent)
+            # print(pos[index])
+            # print(POS_feature_vector[index])
+            # print(lemmas[index])
+            # print(function_word_feature_vector[index])
+            # print(len(function_word_feature_vector))
+
+        # break
         print("chunk = {}".format(chunk))
         result_func_words = vstack(function_word_feature_vector)
         result_POS_trigrams = vstack(POS_feature_vector)
@@ -236,37 +247,6 @@ class BinaryNLIClassifier:
         self.y = labels
 
     def splitDataAndClassify(self, external_test=[]):
-        # # X_train, X_test, y_train, y_test = train_test_split(self.X, self.Y, test_size=0.1, random_state=0)
-        # sss = StratifiedShuffleSplit(n_splits=10, test_size=0.1, random_state=0)
-        # for train_index, test_index in ss.split(self.X, self.y):
-        #     X_train, X_test = self.X[train_index], self.X[test_index]
-        #     y_train, y_test = self.y[train_index], self.y[test_index]
-        #     clf = self.classifier.fit(X_train, y_train)
-        #     print("accuracy: = {}".format(clf.score(X_test, y_test)))
-        #     y_pred = self.classifier.predict(X_test)
-        #     print("f1 = {}".format(f1_score(y_test, y_pred)))
-        # # for i in range(10):
-        # #     X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.1, shuffle=True, random_state=0)
-        # #     clf = self.classifier.fit(X_train, y_train)
-        # #     print("accuracy: = {}".format(clf.score(X_test, y_test)))
-        # #     y_pred = self.classifier.predict(X_test)
-        # #     print("f1 = {}".format(f1_score(y_test, y_pred)))
-        #  #
-        #  # scoring = {'accuracy': make_scorer(accuracy_score),
-        #  #            'f1_score': make_scorer(f1_score)}
-        #  # kfold = KFold(n_splits=10, shuffle=True)
-        #  # results = cross_validate(estimator=self.classifier,
-        #  #                          X=self.X,
-        #  #                          y=self.Y,
-        #  #                          cv=kfold,
-        #  #                          scoring=scoring,
-        #  #                          return_train_score=False)
-        #  # print("accuracy: {}".format(np.mean(results['test_accuracy'])))
-        #  # print("f1: {}".format(np.mean(results['test_f1_score'])))
-        #  #
-        #  # #
-        # kfold = KFold(n_splits=SPLITS, shuffle=True, random_state=None)
-
         fold = 0
         sss = StratifiedShuffleSplit(n_splits=SPLITS, test_size=0.1, random_state=0)
         for train_index, test_index in sss.split(self.X, self.y):
@@ -376,29 +356,6 @@ def calc_num_of_words_and_sentences(text, nlp):
     return word_count, sent_count, len(types)
 
 
-def load_TOEFL_LOCNESS():
-    TOEFL_df = pd.read_csv(TOEFL_INDEX)
-
-    natives = [f for f in os.listdir(LOCNESS_PATH) if f.endswith('.txt')]
-    natives_num = len(natives)
-    non_natives_df = pd.DataFrame()
-    print(natives_num)
-
-    grades = TOEFL_df.Grade.unique()
-    sample_size = int(natives_num / len(grades))
-    grade_to_size = dict(zip(grades, [sample_size, sample_size + 1, sample_size]))
-    print(grade_to_size)
-    print(grades)
-
-    print(sample_size)
-    for grade, size in grade_to_size.items():
-        x = (TOEFL_df.loc[((TOEFL_df['L1'] == 'FRA') | (TOEFL_df['L1'] == 'SPA') | (TOEFL_df['L1'] == 'ITA')) & (
-                    TOEFL_df['Grade'] == grade)]).sample(n=size)
-        print(len(x))
-        non_natives_df = non_natives_df.append(x)
-        print(len(non_natives_df))
-
-    return natives, non_natives_df
 
 
 def Main():
@@ -602,9 +559,12 @@ def Main():
     # create_TOEFL_scrumbled_chunks(CHUNK_SIZE)
     # create_LOCNESS_scrumbled_chunks(CHUNK_SIZE)
     # return
+
+
+
     ######## TOEFL
     non_natives_df = pd.read_csv(TOEFL_STAT)
-    print(len(non_natives_df))
+    # print(len(non_natives_df))
 
     levels = list(non_natives_df['Score Level'].unique())
     binNLI_clf = BinaryNLIClassifier()
@@ -614,22 +574,30 @@ def Main():
 
     for lvl in levels:
         print("level = {}".format(lvl))
-        lvl_dir = os.path.join(TOEFL_LEMMAS_POS, os.path.join('unified',lvl))
-        # lvl_dir = os.path.join(TOEFL_LEMMAS_POS, lvl)
+        # lvl_dir = os.path.join(TOEFL_FRA_LEMMAS_POS, os.path.join(lvl))
+        lvl_dir = os.path.join(TOEFL_GERMANIC_LEMMAS_POS, lvl)
         print(lvl_dir)
         X_non_native_curr_lvl, y_non_native_curr_lvl = binNLI_clf.createFeatureVectorsLazy(lvl_dir, NON_NATIVE,
                                                                                            binNLI_clf.non_natives,
-                                                                                           True)
+                                                                                           flat_list=False, chunks=True)
         X_non_native.append(X_non_native_curr_lvl)
         y_non_native.append(y_non_native_curr_lvl)
     # print(non_natives['high'])
     y_non_native = [item for sublist in y_non_native for item in sublist]
-
-    natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
-    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, True)
     X_non_native_fv = vstack(X_non_native)
 
-    binNLI_clf.X = vstack((X_non_native_fv, X_nativ,))
+
+    # non_natives_dir = ICLE_GERMANIC_LEMMAS_POS
+    # X_non_native, y_non_native = binNLI_clf.createFeatureVectorsLazy(non_natives_dir, NON_NATIVE,
+    #                                                                  binNLI_clf.non_natives, flat_list=False,
+    #                                                                  chunks=False)
+    natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
+    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, flat_list=True,
+                                                            chunks=True)
+
+
+    binNLI_clf.X = vstack((X_non_native_fv, X_nativ))
+    # binNLI_clf.X = vstack((X_non_native, X_nativ))
     binNLI_clf.y = np.array(y_non_native + y_native)
     print(binNLI_clf.X.shape)
     print(binNLI_clf.y.shape)
@@ -657,9 +625,9 @@ def Main():
         #
         df = pd.DataFrame(data)
         print('writing csv')
-        print(stats.kruskal(list(df.loc[df['grade'] == 'low', 'Distance']),
-                            list(df.loc[df['grade'] == 'medium', 'Distance']),
-                            list(df.loc[df['grade'] == 'high', 'Distance'])))
+        # print(stats.kruskal(list(df.loc[df['grade'] == 'low', 'Distance']),
+        #                     list(df.loc[df['grade'] == 'medium', 'Distance']),
+        #                     list(df.loc[df['grade'] == 'high', 'Distance'])))
         # stat, p  = stats.normaltest(list(df['Distance']))
         # alpha = 0.05
         # if p > alpha:
@@ -671,7 +639,7 @@ def Main():
         # else:
         #     print("p value = {}".format(p))
         #     print('Sample does not look Gaussian (reject H0)')
-        filename = "Log_reg_fold_{}_TOEFL_vs_LOCNESS.csv".format(fold)
+        filename = "Log_reg_fold_{}_TOEFL_ITA_vs_LOCNESS.csv".format(fold)
         # print(stats.f_oneway(list(df.loc[df['grade'] == 'low','Distance']),
         #                      list(df.loc[df['grade'] == 'medium','Distance']),
         #                      list(df.loc[df['grade'] == 'high', 'Distance'])))

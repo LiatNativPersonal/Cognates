@@ -13,10 +13,11 @@ TOP_POS_TRIGRAMS = 500
 # NATIVE_DIR = r"/data/home/univ/lnativ1/RedditData/Native/lemmas_pos_over_2000/"
 # ROMANCE_DIR = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
 # GEMANIC_DIR = r"/data/home/univ/lnativ1/RedditData/Germanic/lemmas_pos_over_2000/"
-NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos\unified"
-NON_NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos\all"
+NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos\essays"
+# NON_NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos\all"
+NON_NATIVE_DIR = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\All'
 # POS_TRIGRAMS = r"/data/home/univ/lnativ1/RedditData/GER_POS_trigrams.txt"
-POS_TRIGRAMS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\TOEFEL_LOCNESS_POS_trigrams.txt"
+POS_TRIGRAMS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE_LOCNESS_POS_trigrams.txt"
 function_words_list = []
 
 POS_trigrams_vocab = Counter()
@@ -26,7 +27,7 @@ for input_dir in INPUT_DIRS:
         print(f)
         with open(os.path.join(input_dir,f),'rb') as fh:
             text = pickle.load(fh)
-            text = [item for sublist in text for item in sublist]
+            # text = [item for sublist in text for item in sublist]
 
             text = [s.split(BEGIN_SENTENCE)[1] for s in text]
             text = [s.split(END_SENTENCE)[0] for s in text]

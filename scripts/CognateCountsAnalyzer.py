@@ -21,7 +21,7 @@ NATIVES_COG_COUNT_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LO
 SYNSET_NUM = 235
 TOEFL_SYNSET_NUM = 235
 MIN_OCCUR = 1000
-TOEFL_LEVELS = ['low', 'medium', 'high']
+
 
 def createCountsDataFramePerUser(SOURCE_DIR,COG_DIR, L1, synset_origin, piclkeld = True, POS = True):
     cog_cntr = RedditCognatesCounter(synset_origin)
@@ -34,40 +34,45 @@ def createCountsDataFramePerUser(SOURCE_DIR,COG_DIR, L1, synset_origin, piclkeld
             user_df = cog_cntr.users_cognate_counts_dict[redditUser]
             user_df.to_csv(output_path)
 
-def countTOEFLCognatesPerLevel(COG_COUNT_DIR, non_native_df):
+def countTOEFLCognatesPerLevel(COG_COUNT_DIR, non_native_df, levels = ['low', 'medium', 'high']):
     user_df = non_native_df
     synset_to_level_to_total_count = {}
 
-    for level in TOEFL_LEVELS:
+    for level in levels:
         synset_to_level_to_total_count[level] = {}
 
         for syn in range(1, TOEFL_SYNSET_NUM + 1):
             synset_to_level_to_total_count[level][syn] = {}
             synset_to_level_to_total_count[level][syn]['G'] = 0
             synset_to_level_to_total_count[level][syn]['R'] = 0
-    with open(os.path.join(COG_COUNT_DIR, "TOEFL_FRA_cognate_counts_lemmas_pos.csv"), 'w',encoding='utf-8') as counts_out:
+    with open(os.path.join(COG_COUNT_DIR, "ICLE_Germanic_cognate_counts_lemmas_pos.csv"), 'w',encoding='utf-8') as counts_out:
         header = "level"
         for syn in range(1, TOEFL_SYNSET_NUM + 1):
             header += ",{}_ratio".format(syn)
 
         counts_out.write(header + "\n")
-        for level in TOEFL_LEVELS:
+        for level in levels:
             level_users = user_df.loc[user_df['Score Level'] == level, 'Filename']
+            print(level)
+            print((level_users.head()))
+
             files = list([os.path.join(COG_COUNT_DIR, x.split(".txt")[0] + ".csv") for x in level_users])
+            print(files)
+            return
             level_counts_df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
             for syn in range(1, TOEFL_SYNSET_NUM + 1):
                 synset_to_level_to_total_count[level][syn]['G'] = level_counts_df.loc[
                     (level_counts_df['Source'] == 'G') & (level_counts_df['synset'] == syn), 'count'].sum()
                 synset_to_level_to_total_count[level][syn]['R'] = level_counts_df.loc[
                     (level_counts_df['Source'] == 'R') & (level_counts_df['synset'] == syn), 'count'].sum()
-        for level in TOEFL_LEVELS:
+        for level in levels:
             ger_counts_line = "level_{}_ger_count".format(level)
             for syn in range(1, TOEFL_SYNSET_NUM + 1):
                 ger_counts_line += ",{}".format(synset_to_level_to_total_count[level][syn]['G'])
 
             counts_out.write(ger_counts_line + "\n")
 
-        for level in TOEFL_LEVELS:
+        for level in levels:
             rom_counts_line = "level_{}_rom_count".format(level)
             for syn in range(1, TOEFL_SYNSET_NUM + 1):
                 rom_counts_line += ",{}".format(synset_to_level_to_total_count[level][syn]['R'])

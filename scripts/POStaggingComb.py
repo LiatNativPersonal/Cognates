@@ -47,12 +47,15 @@ def POS_tag_chunks(nlp, input_dir, combined_output_dir):
             print('processing file: {}, {} of {}'.format(file.split(".txt")[0], i, dir_len))
             if os.path.exists(outfile):
                 continue
-            text = f.read().split("\n")
+            # text = f.read().split("\n") # use when each sentence is in a new row
+            text = f.read()
+            doc = nlp(text)
             tagged_text = []
-            for sent in text:
-                doc = nlp(sent)
+            for sent in doc.sents:
+                # doc = nlp(sent)
                 tagged_sentence = BEGIN_SENTENCE
-                for word in doc:
+                # for word in doc:
+                for word in sent:
                     tagged_sentence += word.lemma_ + "_" + word.pos_ + " "
                 tagged_sentence += END_SENTENCE
                 tagged_text.append(tagged_sentence)
@@ -89,7 +92,8 @@ def write_pos_trigrams_to_file(pos_trigram_dict, output_file):
 
 
 def main():
-    nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
+    # nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
+    nlp = spacy.load('en_core_web_sm')
     # doc = nlp("he nailed it")
     # word_list = ['nail']
     # for word in word_list:
