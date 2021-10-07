@@ -254,7 +254,7 @@ def calcGeneralCountsPerSynsetOrigin(freq_list, output):
 
 # calcGeneralFrequency(r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\encow16ax.wp.tsv', 'freq_out_origin.csv')
 
-calcGeneralCountsPerSynsetOrigin(r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\freq_list_origin.csv',"general_counts.csv")
+# calcGeneralCountsPerSynsetOrigin(r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\freq_list_origin.csv',"general_counts.csv")
 
 
 

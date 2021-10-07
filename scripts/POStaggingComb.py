@@ -31,6 +31,12 @@ ICLE_ALL_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\I
 ICLE_ALL_POS_TAG_LEMMA_GERMANIC = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Germanic"
 ICLE_ALL_POS_TAG_LEMMA_ROMANCE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Romance"
 
+MERLIN_TEXT = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\German\Merlin\ClassificationDataset\texts"
+MERLIN_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\German\Merlin\ClassificationDataset\lemmas_pos"
+CERF_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"]
+
+FALCO_TEXT = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\German\Falko\ClassificationDataset\texts"
+FALCO_POS_TAG_LEMMA = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\German\Falko\ClassificationDataset\lemmas_pos"
 
 def POS_tag_chunks(nlp, input_dir, combined_output_dir):
     files = os.listdir(input_dir)
@@ -42,7 +48,7 @@ def POS_tag_chunks(nlp, input_dir, combined_output_dir):
         if not ".txt" in file:
             continue
         i += 1
-        with open(os.path.join(input_dir, file), 'r', encoding='utf-8') as f:
+        with open(os.path.join(input_dir, file), 'r', encoding='utf-8', errors='ignore') as f:
             outfile = os.path.join(combined_output_dir, file.split(".txt")[0])
             print('processing file: {}, {} of {}'.format(file.split(".txt")[0], i, dir_len))
             if os.path.exists(outfile):
@@ -93,16 +99,46 @@ def write_pos_trigrams_to_file(pos_trigram_dict, output_file):
 
 def main():
     # nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
-    nlp = spacy.load('en_core_web_sm')
-    # doc = nlp("he nailed it")
-    # word_list = ['nail']
-    # for word in word_list:
-    #     doc = nlp(word)
-    #     print(len(doc))
-    # for token in doc:
-    #     print(token.text, token.pos_)
-    # pos_trigram_dict = {}
-    POS_tag_chunks(nlp, ICLE_ALL, ICLE_ALL_POS_TAG_LEMMA)
+    # nlp = spacy.load('en_core_web_sm')
+    nlp = spacy.load("de_core_news_sm")
+    # # pos_trigram_dict = {}
+    # for lvl in CERF_LEVELS:
+    #     sent_counter = 0
+    #     token_counter = 0
+    #     lvl_dir = os.path.join(MERLIN_TEXT, lvl)
+    #     files = os.listdir(lvl_dir)
+    #     for file in files:
+    #         with open(os.path.join(lvl_dir,file),'r', encoding='utf-8', errors='ignore') as f_in:
+    #             text = f_in.read()
+    #             doc = nlp(text)
+    #
+    #             for sent in doc.sents:
+    #                 sent_counter += 1
+    #                 token_counter += len(sent)
+    #     print("{} number of sentences: {}".format(lvl, sent_counter))
+    #     print("{} number of tokens: {}".format(lvl, token_counter))
+    sent_counter = 0
+    token_counter = 0
+    merlin_all = os.path.join(MERLIN_TEXT, 'all')
+    print(len(os.listdir(merlin_all)))
+    for file in os.listdir(merlin_all):
+        with open(os.path.join(merlin_all, file),'r', encoding='utf-8', errors='ignore') as f_in:
+
+            text = f_in.read()
+            doc = nlp(text)
+
+            for sent in doc.sents:
+                sent_counter += 1
+                token_counter += len(sent)
+    print("number of sentences: {}".format(sent_counter))
+    print("number of tokens: {}".format( token_counter))
+
+
+    #     POS_tag_chunks(nlp, os.path.join(MERLIN_TEXT, lvl), os.path.join(MERLIN_POS_TAG_LEMMA, lvl))
+
+    # POS_tag_chunks(nlp, FALCO_TEXT, FALCO_POS_TAG_LEMMA)
+
+    # POS_tag_chunks(nlp, ICLE_ALL, ICLE_ALL_POS_TAG_LEMMA)
     # print('done pos tagging romance users')
     # POS_tag_chunks(nlp, ROMANCE_CHUNKS, ROMANCE_POS_TAG_CHUNKS)
     # create_POS_trigram_dict(ROMANCE_POS_TAG_CHUNKS, pos_trigram_dict)

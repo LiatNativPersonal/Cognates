@@ -13,11 +13,13 @@ TOP_POS_TRIGRAMS = 500
 # NATIVE_DIR = r"/data/home/univ/lnativ1/RedditData/Native/lemmas_pos_over_2000/"
 # ROMANCE_DIR = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
 # GEMANIC_DIR = r"/data/home/univ/lnativ1/RedditData/Germanic/lemmas_pos_over_2000/"
-NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos\essays"
+# NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos\essays"
+NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\main-HebrewEssays-data-HEC\lemmas_pos\native"
 # NON_NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos\all"
-NON_NATIVE_DIR = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\All'
+# NON_NATIVE_DIR = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\All'
+NON_NATIVE_DIR = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\main-HebrewEssays-data-HEC\lemmas_pos\non_native\all"
 # POS_TRIGRAMS = r"/data/home/univ/lnativ1/RedditData/GER_POS_trigrams.txt"
-POS_TRIGRAMS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE_LOCNESS_POS_trigrams.txt"
+POS_TRIGRAMS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\HEC_POS_trigrams.txt"
 function_words_list = []
 
 POS_trigrams_vocab = Counter()

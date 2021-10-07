@@ -53,32 +53,43 @@ REDDIT_NATIVE_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Native/lemmas_po
 REDDIT_ROMANCE_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Romance/lemmas_pos_over_2000/"
 REDDIT_GERMANIC_LEMMAS_POS = r"/data/home/univ/lnativ1/RedditData/Germanic/lemmas_pos_over_2000/"
 
-FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\function-words.csv"
+# FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\function-words.csv"
+FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\German_function_word.txt"
+# FUNCTION_WORDS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\5_prefixes_heb.txt"
+
 # POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\TOEFEL_LOCNESS_POS_trigrams.txt"
-POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE_LOCNESS_POS_trigrams.txt"
+# POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE_LOCNESS_POS_trigrams.txt"
+POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Merlin_Falko_POS_trigrams.txt"
+# POS_TRIGRAMS_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\HEC_POS_trigrams.txt"
 
-# FUNCTION_WORDS = r"/data/home/univ/lnativ1/RedditData/function-words.csv"
-# POS_TRIGRAMS_FILE = r"/data/home/univ/lnativ1/RedditData/ROM_POS_trigrams.txt"
+TOEFL_INDEX = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\index.csv"
+TOEFL_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text"
+TOEFL_ESSEYS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\tokenized"
+TOEFL_STAT = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\stat.csv"
+LOCNESS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\LOCNESS\texts"
 
-TOEFL_INDEX = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\index.csv"
-TOEFL_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text"
-TOEFL_ESSEYS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\tokenized"
-TOEFL_STAT = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\stat.csv"
-LOCNESS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\texts"
-
-LOCNESS_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\LOCNESS\lemmas_pos"
-TOEFL_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos"
-TOEFL_ROMANCE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\lemmas_pos"
-TOEFL_FRA_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\FRA"
-TOEFL_ITA_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\ITA"
-TOEFL_GERMANIC_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\Germanic\lemmas_pos"
+LOCNESS_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\LOCNESS\lemmas_pos\essays"
+TOEFL_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos"
+TOEFL_ROMANCE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\lemmas_pos"
+TOEFL_FRA_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\FRA"
+TOEFL_ITA_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\ITA"
+TOEFL_GERMANIC_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\Germanic\lemmas_pos"
 ICLE_ROMANCE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Romance"
 ICLE_GERMANIC_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\ICLE\lemmas_pos\Germanic"
 
+MERLIN_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\German\Merlin\ClassificationDataset\lemmas_pos"
+FALKO_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\German\Falko\ClassificationDataset\lemmas_pos"
+
+HEC_NATIVE_LEMMAS_POS = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\Hebrew\NITE\ClassificationDataset\lemmas_pos\native'
+HEC_NON_NATIVE_LEMMAS_POS = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\Hebrew\NITE\ClassificationDataset\lemmas_pos\non_native'
+HEC_NON_NATIVE_META_DATA = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\Hebrew\NITE\data\HEC\Non_Native_Metadata.csv'
+
+
 TOEFL_DEBUG = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\debug'
 
-CHUNK_SIZE = 1000
+CHUNK_SIZE = 500
 NUMBER_OF_BINS = 5
+
 BEGIN_SENTENCE = "<s>"
 END_SENTENCE = "</s>"
 SEPERATOR = "_"
@@ -86,7 +97,8 @@ TRI = 3
 TOP_POS_TRIGRAMS = 500
 NATIVE = 1
 NON_NATIVE = 0
-SPLITS = 10
+SPLITS = 5
+TEST_SIZE = 1/SPLITS
 
 
 class BinaryNLIClassifier:
@@ -95,6 +107,7 @@ class BinaryNLIClassifier:
         self.classifier = LogisticRegression(penalty='l2', dual=True, solver='liblinear', warm_start=True, C=10.0)
 
         # self.classifier = svm.SVC()
+        # self.classifier = svm.LinearSVC()
         self.function_words_file = FUNCTION_WORDS
         self.function_words_list = []
         self.non_natives = []
@@ -113,11 +126,12 @@ class BinaryNLIClassifier:
                 tri_freq = tri.split(",")
                 pos_tri[tri_freq[0]] = tri_freq[1]
         self.POS_trigrams_list = list(pos_tri.keys())
+        # print(len(self.POS_trigrams_list))
 
     def createFunctionWordList(self):
-        with open(self.function_words_file, 'r') as func_words:
-            self.function_words_list = [word.strip() for word in func_words]
-        # print(self.function_words_list)
+        with open(self.function_words_file, 'r', encoding='utf-8') as func_words:
+            self.function_words_list = set([word.strip() for word in func_words])
+        # print(len(self.function_words_list))
 
     def Tokenize(text):
         return text.split(' ')
@@ -131,16 +145,21 @@ class BinaryNLIClassifier:
         function_word_feature_vector = []
         POS_feature_vector = []
         text = []
+
         for f in os.listdir(input_dir):
             with open(os.path.join(input_dir, f), 'rb') as fh:
-                # text.append(pickle.load(fh))
-                text = pickle.load(fh)
+                # print("file = {}".format(f))
+                text.append(pickle.load(fh))
+                # text = pickle.load(fh)
                 if flat_list:
                     text = [item for sublist in text for item in sublist]
-        # text = [item for sublist in text for item in sublist]
+        text = [item for sublist in text for item in sublist]
         shuffle(text)
-        text = [s.split(BEGIN_SENTENCE)[1] for s in text]
-        text = [s.split(END_SENTENCE)[0] for s in text]
+        try:
+            text = [s.split(BEGIN_SENTENCE)[1] for s in text]
+        except:
+            print(text)
+        # text = [s.split(END_SENTENCE)[0] for s in text]
         chunk = 0
         token_counter = 0
         lemmas = {}
@@ -150,11 +169,12 @@ class BinaryNLIClassifier:
         pos_seq = ""
         lemmas_seq = ""
         for sentence in text:
+
             sentence = sentence.strip()
             if len(sentence) > 0 and chunks and token_counter >= CHUNK_SIZE:
                 lemmas[chunk].append(lemmas_seq)
                 pos[chunk].append(pos_seq)
-                chunks_record.append("{}_{}".format(f, chunk))
+                chunks_record.append("{}_{}".format(os.path.basename(os.path.normpath(input_dir)), chunk))
                 chunk += 1
                 pos[chunk] = []
                 lemmas[chunk] = []
@@ -163,6 +183,7 @@ class BinaryNLIClassifier:
                 lemmas_seq = ""
 
             token_counter += len(sentence.split(" "))
+            # print(token_counter)
             pos_seq += BEGIN_SENTENCE + " "
             for token in sentence.split(" "):
                 try:
@@ -248,9 +269,9 @@ class BinaryNLIClassifier:
 
     def splitDataAndClassify(self, external_test=[]):
         fold = 0
-        sss = StratifiedShuffleSplit(n_splits=SPLITS, test_size=0.1, random_state=0)
+        sss = StratifiedShuffleSplit(n_splits=SPLITS, test_size=TEST_SIZE, random_state=0)
         for train_index, test_index in sss.split(self.X, self.y):
-            # for train_index, test_index in kfold.split(self.X, self.y):
+            # for= train_index, test_index in kfold.split(self.X, self.y):
             X_train, X_test = self.X[train_index], self.X[test_index]
             y_train, y_test = self.y[train_index], self.y[test_index]
             clf = self.classifier.fit(X_train, y_train)
@@ -337,26 +358,6 @@ class BinaryNLIClassifier:
         #      for key,value in self.natives_user_to_distance_from_border_line.items():
         #          # user = (key.split("Balanced/",1)[1]).split(".",1)[0]
         #          nativedist.write("{},{}\n".format(key,value))
-
-
-def calc_num_of_words_and_sentences(text, nlp):
-    word_count = 0
-    sent_count = 0
-    types = []
-    for line in text:
-        line = line.strip()
-        if len(line) > 0:
-            doc = nlp(line)
-            sent_count += 1
-            word_count += len(line.split(" "))
-            for sentence in doc.sentences:
-                for word in sentence.words:
-                    if word.lemma not in types:
-                        types.append(word.lemma)
-    return word_count, sent_count, len(types)
-
-
-
 
 def Main():
     # TOEFL_df = pd.read_csv(TOEFL_INDEX)
@@ -563,39 +564,49 @@ def Main():
 
 
     ######## TOEFL
-    non_natives_df = pd.read_csv(TOEFL_STAT)
+    non_native_df = pd.read_csv(TOEFL_STAT)
     # print(len(non_natives_df))
-
-    levels = list(non_natives_df['Score Level'].unique())
+    non_native_df = pd.read_csv(HEC_NON_NATIVE_META_DATA)
+    levels = list(non_native_df['level'].unique())
+    # levels = ['high', 'low']
+    # levels = [str(x).split(".0")[0] for x in levels]
+    # levels = list(non_native_df['Score Level'].unique())
+    # levels = ["A", "B", "C"]
     binNLI_clf = BinaryNLIClassifier()
 
     X_non_native = []
     y_non_native = []
-
+    #
     for lvl in levels:
         print("level = {}".format(lvl))
         # lvl_dir = os.path.join(TOEFL_FRA_LEMMAS_POS, os.path.join(lvl))
-        lvl_dir = os.path.join(TOEFL_GERMANIC_LEMMAS_POS, lvl)
+        # lvl_dir = os.path.join(HEC_NON_NATIVE_LEMMAS_POS, lvl)
+        lvl_dir = os.path.join(HEC_NON_NATIVE_LEMMAS_POS, os.path.join(lvl))
         print(lvl_dir)
         X_non_native_curr_lvl, y_non_native_curr_lvl = binNLI_clf.createFeatureVectorsLazy(lvl_dir, NON_NATIVE,
                                                                                            binNLI_clf.non_natives,
                                                                                            flat_list=False, chunks=True)
         X_non_native.append(X_non_native_curr_lvl)
+        print(X_non_native_curr_lvl.shape)
         y_non_native.append(y_non_native_curr_lvl)
+
+
     # print(non_natives['high'])
     y_non_native = [item for sublist in y_non_native for item in sublist]
     X_non_native_fv = vstack(X_non_native)
-
 
     # non_natives_dir = ICLE_GERMANIC_LEMMAS_POS
     # X_non_native, y_non_native = binNLI_clf.createFeatureVectorsLazy(non_natives_dir, NON_NATIVE,
     #                                                                  binNLI_clf.non_natives, flat_list=False,
     #                                                                  chunks=False)
-    natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
-    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, flat_list=True,
+    # natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
+    # natives_dir = HEC_NATIVE_LEMMAS_POS
+    natives_dir = HEC_NATIVE_LEMMAS_POS
+    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, flat_list=False,
                                                             chunks=True)
 
-
+    print(len(y_native))
+    print(len(y_non_native))
     binNLI_clf.X = vstack((X_non_native_fv, X_nativ))
     # binNLI_clf.X = vstack((X_non_native, X_nativ))
     binNLI_clf.y = np.array(y_non_native + y_native)
@@ -625,6 +636,8 @@ def Main():
         #
         df = pd.DataFrame(data)
         print('writing csv')
+        return
+
         # print(stats.kruskal(list(df.loc[df['grade'] == 'low', 'Distance']),
         #                     list(df.loc[df['grade'] == 'medium', 'Distance']),
         #                     list(df.loc[df['grade'] == 'high', 'Distance'])))
@@ -639,7 +652,7 @@ def Main():
         # else:
         #     print("p value = {}".format(p))
         #     print('Sample does not look Gaussian (reject H0)')
-        filename = "Log_reg_fold_{}_TOEFL_ITA_vs_LOCNESS.csv".format(fold)
+        filename = "LogReg_fold_{}_MERLIN_Falko.csv".format(fold)
         # print(stats.f_oneway(list(df.loc[df['grade'] == 'low','Distance']),
         #                      list(df.loc[df['grade'] == 'medium','Distance']),
         #                      list(df.loc[df['grade'] == 'high', 'Distance'])))
