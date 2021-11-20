@@ -3,9 +3,9 @@ import os
 import statistics as stat
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# DISTANCE_RESULT_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Results\BinaryClassification\TOEFL_LOCNESS\Log_reg_fold_4_TOEFL_vs_LOCNESS.csv"
+DISTANCE_RESULT_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Results\BinaryClassification\TOEFL_LOCNESS\Log_reg_fold_4_TOEFL_vs_LOCNESS.csv"
 # DISTANCE_RESULT_FILE =r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Results\BinaryClassification\NITE\Log_reg_fold_7_HEC.csv"
-DISTANCE_RESULT_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Results\BinaryClassification\MERLIN_FALKO\LogReg_fold_3_MERLIN_Falko.csv"
+# DISTANCE_RESULT_FILE = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Results\BinaryClassification\MERLIN_FALKO\LogReg_fold_3_MERLIN_Falko.csv"
 
 TOEFL_HLC_level_to_number_dict = {'low':0, 'medium':1, 'high':2}
 CERF_level_to_number_dict = {'A':0, 'B':1, 'C':2}
@@ -75,35 +75,53 @@ def analyze_distances(level_to_number):
     print("Total accuracy :")
     print(accuracy_score(golden, pred_level_sorted))
     print("Total f1 :")
-    print(f1_score(golden, pred_level_sorted, average='macro'))
+    print(f1_score(golden, pred_level_sorted, average='weighted'))
     print(f1_score(golden, pred_level_sorted, average='micro'))
     print(f1_score(golden, pred_level_sorted, average=None))
     print(precision_score(golden, pred_level_sorted, average=None))
     print(recall_score(golden, pred_level_sorted, average=None))
 
     print('upper 10%')
-    print(accuracy_score(high_ten_golden, high_ten_pred))
-    print(precision_score(high_ten_golden, high_ten_pred, average=None))
-    print(recall_score(high_ten_golden, high_ten_pred, average=None))
-    print(f1_score(high_ten_golden, high_ten_pred, average=None))
+    # print(accuracy_score(high_ten_golden, high_ten_pred))
+    # print(precision_score(high_ten_golden, high_ten_pred, average=None))
+    # print(recall_score(high_ten_golden, high_ten_pred, average=None))
+    # print(f1_score(high_ten_golden, high_ten_pred, average=None))
+
+    print(accuracy_score(high_ten_golden, [2] * len(high_ten_golden)))
+    print(precision_score(high_ten_golden, [2] * len(high_ten_golden), average=None))
+    print(recall_score(high_ten_golden, [2] * len(high_ten_golden), average=None))
+    print(f1_score(high_ten_golden, [2] * len(high_ten_golden), average=None))
 
     print('upper 5%')
-    print(accuracy_score(high_five_golden, high_five_pred))
-    print(precision_score(high_five_golden, high_five_pred, average=None, zero_division=0))
-    print(recall_score(high_five_golden, high_five_pred, average=None))
-    print(f1_score(high_five_golden, high_five_pred, average=None))
+    # print(accuracy_score(high_five_golden, high_five_pred))
+    # print(precision_score(high_five_golden, high_five_pred, average=None, zero_division=0))
+    # print(recall_score(high_five_golden, high_five_pred, average=None))
+    # print(f1_score(high_five_golden, high_five_pred, average=None))
+
+    print(accuracy_score(high_five_golden, [2] * len(high_five_golden)))
+    print(precision_score(high_five_golden, [2] * len(high_five_golden), average=None, zero_division=0))
+    print(recall_score(high_five_golden, [2] * len(high_five_golden), average=None))
+    print(f1_score(high_five_golden, [2] * len(high_five_golden), average=None))
 
     print('lower 10%')
-    print(accuracy_score(low_ten_golden, low_ten_pred))
-    print(precision_score(low_ten_golden, low_ten_pred, average=None, zero_division=0))
-    print(recall_score(low_ten_golden, low_ten_pred, average=None))
-    print(f1_score(low_ten_golden, low_ten_pred, average=None))
+    # print(accuracy_score(low_ten_golden, low_ten_pred))
+    # print(precision_score(low_ten_golden, low_ten_pred, average=None, zero_division=0))
+    # print(recall_score(low_ten_golden, low_ten_pred, average=None))
+    # print(f1_score(low_ten_golden, low_ten_pred, average=None))
+    print(accuracy_score(low_ten_golden, [0] * len(low_ten_golden)))
+    print(precision_score(low_ten_golden, [0] * len(low_ten_golden), average=None, zero_division=0))
+    print(recall_score(low_ten_golden, [0] * len(low_ten_golden), average=None))
+    print(f1_score(low_ten_golden, [0] * len(low_ten_golden), average=None))
 
     print('lower 5%')
-    print(accuracy_score(low_five_golden, low_five_pred))
-    print(precision_score(low_five_golden, low_five_pred, average=None, zero_division=0))
-    print(recall_score(low_five_golden, low_five_pred, average=None))
-    print(f1_score(low_five_golden, low_five_pred, average=None))
+    # print(accuracy_score(low_five_golden, low_five_pred))
+    # print(precision_score(low_five_golden, low_five_pred, average=None, zero_division=0))
+    # print(recall_score(low_five_golden, low_five_pred, average=None))
+    # print(f1_score(low_five_golden, low_five_pred, average=None))
+    print(accuracy_score(low_five_golden, [0] * len(low_five_golden)))
+    print(precision_score(low_five_golden, [0] * len(low_five_golden), average=None, zero_division=0))
+    print(recall_score(low_five_golden, [0] * len(low_five_golden), average=None))
+    print(f1_score(low_five_golden, [0] * len(low_five_golden), average=None))
 
 
 
@@ -112,8 +130,8 @@ def analyze_distances(level_to_number):
 
 
 def Main():
-    # analyze_distances(TOEFL_HLC_level_to_number_dict)
-    analyze_distances(CERF_level_to_number_dict)
+    analyze_distances(TOEFL_HLC_level_to_number_dict)
+    # analyze_distances(CERF_level_to_number_dict)
 if __name__ == '__main__':
     Main()
 

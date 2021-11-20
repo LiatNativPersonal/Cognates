@@ -68,7 +68,7 @@ TOEFL_ESSEYS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\Englis
 TOEFL_STAT = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\stat.csv"
 LOCNESS_PATH = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\LOCNESS\texts"
 
-LOCNESS_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\LOCNESS\lemmas_pos\essays"
+LOCNESS_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\LOCNESS\lemmas_pos"
 TOEFL_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\lemmas_pos"
 TOEFL_ROMANCE_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\lemmas_pos"
 TOEFL_FRA_LEMMAS_POS = r"c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\Romance\FRA"
@@ -85,9 +85,9 @@ HEC_NON_NATIVE_LEMMAS_POS = r'c:\Users\User\Documents\Liat\Research\Repo\Cognate
 HEC_NON_NATIVE_META_DATA = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\Hebrew\NITE\data\HEC\Non_Native_Metadata.csv'
 
 
-TOEFL_DEBUG = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\debug'
+TOEFL_DEBUG = r'c:\Users\User\Documents\Liat\Research\Repo\Cognates\Data\English\ETS_Corpus_of_Non-Native_Written_English\data\text\responses\debug'
 
-CHUNK_SIZE = 500
+CHUNK_SIZE = 1000
 NUMBER_OF_BINS = 5
 
 BEGIN_SENTENCE = "<s>"
@@ -97,7 +97,7 @@ TRI = 3
 TOP_POS_TRIGRAMS = 500
 NATIVE = 1
 NON_NATIVE = 0
-SPLITS = 5
+SPLITS = 10
 TEST_SIZE = 1/SPLITS
 
 
@@ -208,9 +208,11 @@ class BinaryNLIClassifier:
             # print(index)
             function_word_feature_vector.append(function_words_vectorizer.fit_transform(lemmas[index]))
             POS_feature_vector.append(POS_vectorizer.fit_transform(pos[index]))
-            # with open(os.path.join(TOEFL_DEBUG, "{}_{}".format(f, index)), 'w', encoding='utf-8') as chunk_out:
-            #     for sent in lemmas[index]:
-            #         chunk_out.write(sent)
+            with open(os.path.join(TOEFL_DEBUG, "{}_{}".format(f, index)), 'w', encoding='utf-8') as chunk_out:
+                for sent in lemmas[index]:
+                    # sent = (sent.split(END_SENTENCE)[0]).strip()
+
+                    chunk_out.write(sent + "\n")
             # print(pos[index])
             # print(POS_feature_vector[index])
             # print(lemmas[index])
@@ -566,11 +568,11 @@ def Main():
     ######## TOEFL
     non_native_df = pd.read_csv(TOEFL_STAT)
     # print(len(non_natives_df))
-    non_native_df = pd.read_csv(HEC_NON_NATIVE_META_DATA)
-    levels = list(non_native_df['level'].unique())
+    # non_native_df = pd.read_csv(HEC_NON_NATIVE_META_DATA)
+    # levels = list(non_native_df['level'].unique())
     # levels = ['high', 'low']
     # levels = [str(x).split(".0")[0] for x in levels]
-    # levels = list(non_native_df['Score Level'].unique())
+    levels = list(non_native_df['Score Level'].unique())
     # levels = ["A", "B", "C"]
     binNLI_clf = BinaryNLIClassifier()
 
@@ -581,7 +583,8 @@ def Main():
         print("level = {}".format(lvl))
         # lvl_dir = os.path.join(TOEFL_FRA_LEMMAS_POS, os.path.join(lvl))
         # lvl_dir = os.path.join(HEC_NON_NATIVE_LEMMAS_POS, lvl)
-        lvl_dir = os.path.join(HEC_NON_NATIVE_LEMMAS_POS, os.path.join(lvl))
+        # lvl_dir = os.path.join(HEC_NON_NATIVE_LEMMAS_POS, os.path.join(lvl))
+        lvl_dir = os.path.join(TOEFL_LEMMAS_POS,os.path.join(lvl))
         print(lvl_dir)
         X_non_native_curr_lvl, y_non_native_curr_lvl = binNLI_clf.createFeatureVectorsLazy(lvl_dir, NON_NATIVE,
                                                                                            binNLI_clf.non_natives,
@@ -599,10 +602,10 @@ def Main():
     # X_non_native, y_non_native = binNLI_clf.createFeatureVectorsLazy(non_natives_dir, NON_NATIVE,
     #                                                                  binNLI_clf.non_natives, flat_list=False,
     #                                                                  chunks=False)
-    # natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
+    natives_dir = os.path.join(LOCNESS_LEMMAS_POS, 'unified')
     # natives_dir = HEC_NATIVE_LEMMAS_POS
-    natives_dir = HEC_NATIVE_LEMMAS_POS
-    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, flat_list=False,
+    # natives_dir = HEC_NATIVE_LEMMAS_POS
+    X_nativ, y_native = binNLI_clf.createFeatureVectorsLazy(natives_dir, NATIVE, binNLI_clf.natives, flat_list=True,
                                                             chunks=True)
 
     print(len(y_native))
@@ -652,7 +655,7 @@ def Main():
         # else:
         #     print("p value = {}".format(p))
         #     print('Sample does not look Gaussian (reject H0)')
-        filename = "LogReg_fold_{}_MERLIN_Falko.csv".format(fold)
+        filename = "LogReg_fold_{}_TOEFL_LOCNESS_7_11.csv".format(fold)
         # print(stats.f_oneway(list(df.loc[df['grade'] == 'low','Distance']),
         #                      list(df.loc[df['grade'] == 'medium','Distance']),
         #                      list(df.loc[df['grade'] == 'high', 'Distance'])))

@@ -15,13 +15,13 @@ fold = 4
 dist_df = pd.read_csv(INPUT_FILE)
 # high_dists = dist_df[dist_df['grade'] == 'C']
 high_dists = dist_df[dist_df['grade'] == 'high']
-# high_dists = high_dists.sort_values('Distance')
+high_dists = high_dists.sort_values('Distance')
 # med_dists = dist_df[dist_df['grade'] == 'B']
 med_dists = dist_df[dist_df['grade'] == 'medium']
-# med_dists = med_dists.sort_values('Distance')
+med_dists = med_dists.sort_values('Distance')
 # low_dists = dist_df[dist_df['grade'] == 'A']
 low_dists = dist_df[dist_df['grade'] == 'low']
-# low_dists = low_dists.sort_values('Distance')
+low_dists = low_dists.sort_values('Distance')
 # print(len(high_dists))
 
 dist_df = dist_df.assign(color='green')
@@ -52,9 +52,10 @@ med_agg_values = []
 low_agg_values = []
 i = 0
 
-high_chunks = np.array_split(high_chunks, int(len(high_chunks)/20))
-med_chunks = np.array_split(med_chunks, int(len(med_chunks)/20))
-low_chunks = np.array_split(low_chunks, int(len(low_chunks)/20))
+instances_per_dot = 5
+high_chunks = np.array_split(high_chunks, int(len(high_chunks)/instances_per_dot))
+med_chunks = np.array_split(med_chunks, int(len(med_chunks)/instances_per_dot))
+low_chunks = np.array_split(low_chunks, int(len(low_chunks)/instances_per_dot))
 
 
 
@@ -69,11 +70,15 @@ for low in range(len(low_chunks)):
     low_agg_values.append([i,np.mean(low_chunks[low]),'red', 0])
     i+=1
 
-plot_df = pd.DataFrame(high_agg_values+ med_agg_values + low_agg_values, columns= ['id','distance', 'color', 'level'])
+plot_df = pd.DataFrame(high_agg_values + med_agg_values + low_agg_values, columns= ['id','distance', 'color', 'level'])
+
+# plot_df = plot_df.sort_values(by='distance')
+# plot_df.id = plot_df.astype(str)
+print(plot_df)
 #
 # print(plot_df)
 colors = np.array(plot_df['color'])
-plot_df.plot.scatter(x='id', y='distance', grid=True,  title="TOEFL distance per level", c=colors)
+plot_df.plot.scatter(x='id', y='distance',   title="TOEFL distance per level", c=colors)
 # colors = np.array(dist_df['color'])
 # dist_df.plot.scatter(x='User', y='Distance', grid=True,  title="TOEFL distance per level", c=colors)
 # plt.savefig('Linear_SVM_NITE_hebrew.png')
