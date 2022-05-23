@@ -56,15 +56,8 @@ def countTOEFLCognatesPerLevel(COG_COUNT_DIR, non_native_df, levels = ['low', 'm
         counts_out.write(header + "\n")
         for level in levels:
             level_users = user_df.loc[user_df['Score Level'] == level, 'Filename']
-            # level_users = [f for f in os.listdir(COG_COUNT_DIR) if level in f]
-
-            print(level)
-            # print((level_users.head()))
-
-            # files = list([os.path.join(COG_COUNT_DIR, x.split(".txt")[0] + ".csv") for x in level_users])
             files = list([os.path.join(COG_COUNT_DIR, x) for x in level_users])
             print(files)
-            # return
             level_counts_df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
             for syn in range(1, TOEFL_SYNSET_NUM + 1):
                 synset_to_level_to_total_count[level][syn]['G'] = level_counts_df.loc[
@@ -104,8 +97,6 @@ def countCognatesPerLevel(COG_COUNT_DIR):
             synset_to_native_info[syn]['ratio'] =  synset_to_native_info[syn]['R']/all
         else:
             synset_to_native_info[syn]['ratio'] = '-'
-    # with open(os.path.join(NATIVES_COG_COUNT_DIR,"native_synset_to_ratio"), 'wb') as natives_counts_out:
-    #     pickle.dump(synset_to_native_info, natives_counts_out)
     with open(os.path.join(NATIVES_COG_COUNT_DIR,"native_synset_to_ratio.csv"), 'w') as natives_counts_out:
         header = ""
         for syn in range(1, SYNSET_NUM + 1):
@@ -122,8 +113,7 @@ def countCognatesPerLevel(COG_COUNT_DIR):
         natives_counts_out.write(native_rom_counts_line + "\n")
 
     return
-    # with open(os.path.join(NATIVES_COG_COUNT_DIR,"native_synset_to_ratio"), 'rb') as natives_counts_out:
-    #     synset_to_native_info = pickle.load(natives_counts_out)
+
 
     synset_to_level_to_total_count = {}
     for level in range(levels_num):
@@ -141,9 +131,7 @@ def countCognatesPerLevel(COG_COUNT_DIR):
         ratios_out.write(header +"\n")
         synset_to_non_native_ratio = {}
         for level in range(levels_num):
-            # files = list(user_df.loc[user_df['bin'] == level, 'cog_count_file'])
             level_users = user_df.loc[(user_df['bin'] == level) & (user_df['stdev_grades'] <= 1), 'username']
-            # level_users = user_df.loc[(user_df['bin'] == level) , 'username']
             level_users = [x[1:-1] for x in level_users]
             files =list([os.path.join(COG_COUNT_DIR, x + ".csv") for x in level_users])
             print("levle {}: {} files".format(level, len(files)))
@@ -161,8 +149,6 @@ def countCognatesPerLevel(COG_COUNT_DIR):
                 synset_to_level_to_total_count[level][syn]['G'] = level_counts_df.loc[(level_counts_df['Source'] == 'G') & (level_counts_df['synset'] == syn), 'count'].sum()
                 synset_to_level_to_total_count[level][syn]['R'] = level_counts_df.loc[(level_counts_df['Source'] == 'R') & (level_counts_df['synset'] == syn), 'count'].sum()
 
-                # non_native_ratio = rom_count / (rom_count+ger_count)
-                # synset_to_non_native_ratio[level][syn] = non_native_ratio - synset_to_native_info[syn]['ratio']
                 total = synset_to_level_to_total_count[level][syn]['G'] + synset_to_level_to_total_count[level][syn]['R']
                 if total > 0 and synset_to_native_info[syn]['ratio'] != '-':
                     line += ",{}".format((synset_to_level_to_total_count[level][syn]['R'] / total) - synset_to_native_info[syn]['ratio'])
@@ -227,10 +213,6 @@ def calcGeneralFrequency(freq_list, output):
                 if str(word_pos[1]['pos']).startswith(pos):
                     freq_sum += int(word_pos[1]['freq'])
             writer.writerow({'synset':row[1]['synset'], 'word':word, 'pos':row[1]['POS'], 'source': row[1]['Source'], 'freq':freq_sum})
-            # print(freq_sum)
-            # i+=1
-            # if i > 10:
-            #     break
 
 def calcGeneralCountsPerSynsetOrigin(freq_list, output):
     general_freq_df = pd.read_csv(freq_list)
@@ -256,33 +238,6 @@ def calcGeneralCountsPerSynsetOrigin(freq_list, output):
             general_rom_counts_line += ",{}".format(synset_to_origin_to_count[syn]['R'])
         ratios_out.write(general_rom_counts_line + "\n")
 
-def collectPermutaionTestInfo(input_dir, test_size, levels, language):
-    test_info = {}
-    for i in range(test_size):
-        # test_info[i] = {}
-        path = os.path.join(input_dir, str(i))
-        curr_test_df = pd.read_csv(os.path.join(path, '{}_{}_cognate_counts_lemmas_pos.csv'.format(i, language)))
-        test_info[i] = get_info(curr_test_df, levels)
-        # for j in range(1, SYNSET_NUM+1):
-        #     test_info[i][j] = {}
-        #     for lvl in levels:
-        #         test_info[i][j][lvl] =
-                # test_info[i][j][lvl]['ger_count'] = int(curr_test_df.loc[curr_test_df['level'] ==
-                #                                                      'level_{}_ger_count'.format(lvl),
-                #                                                      "{}_ratio".format(j)])
-                # test_info[i][j][lvl]['rom_count'] = int(curr_test_df.loc[curr_test_df['level'] ==
-                #                                                      'level_{}_rom_count'.format(lvl),
-                #                                                      "{}_ratio".format(j)])
-                # test_info[i][j][lvl]['total'] = test_info[i][j][lvl]['ger_count'] + test_info[i][j][lvl]['rom_count']
-                # if test_info[i][j][lvl]['total'] > 0:
-                #     test_info[i][j][lvl]['ger_ratio'] = test_info[i][j][lvl]['ger_count']/test_info[i][j][lvl]['total']
-                #     test_info[i][j][lvl]['rom_ratio'] = test_info[i][j][lvl]['rom_count'] / test_info[i][j][lvl]['total']
-                # else:
-                #     test_info[i][j][lvl]['ger_ratio'] = None
-                #     test_info[i][j][lvl]['rom_ratio'] = None
-
-
-    return test_info
 
 
 def get_info(df_info, levels):
@@ -290,6 +245,7 @@ def get_info(df_info, levels):
     for j in range(1, SYNSET_NUM + 1):
         info_dict[j] = {}
         for lvl in levels:
+
             info_dict[j][lvl] = {}
             info_dict[j][lvl]['ger_count'] = int(df_info.loc[df_info['level'] ==
                                                                      'level_{}_ger_count'.format(lvl),
@@ -315,7 +271,7 @@ def get_info(df_info, levels):
 
 
 
-# createCountsDataFramePerUser(GERMANIC_INPUT_DIR,GERMANIC_COG_COUNT_DIR, 'Germanic',SYNSET_ORIGIN)
-# countCognatesPerLevel(GERMANIC_COG_COUNT_DIR)
+
+
 
 
